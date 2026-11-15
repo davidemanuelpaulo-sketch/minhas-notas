@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#F4F3EF">
+<script>try{var p=JSON.parse(localStorage.getItem('minhas-notas-pref')||'{}'),t=p.tema||'auto',d=t==='escuro'||(t==='auto'&&window.matchMedia&&matchMedia('(prefers-color-scheme: dark)').matches);document.documentElement.setAttribute('data-theme',d?'dark':'light');}catch(e){}</script>
 <title>Minhas notas</title>
 <link rel="manifest" href="./manifest.webmanifest">
 <link rel="icon" href="./icon-192.png">
@@ -25,6 +26,20 @@
   </form>
 </div>
 
+<div class="shell">
+<aside class="side" id="side" aria-label="Navegação">
+  <div class="sbrand"><img src="./icon-192.png" alt="" width="32" height="32"><span>Minhas notas</span></div>
+  <nav class="snav" aria-label="Telas">
+    <button type="button" class="sbtn" data-sview="feed" aria-pressed="true"><span class="sic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span><span class="slab">Notas</span></button>
+    <button type="button" class="sbtn" data-sview="views" aria-pressed="false"><span class="sic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 5-6"/></svg></span><span class="slab">Resumo</span></button>
+  </nav>
+  <div class="ssearch"><label for="q2" class="sr">Buscar nas notas</label><input id="q2" type="search" placeholder="Buscar (Ctrl+K)"></div>
+  <div id="sideLists" class="slists"></div>
+  <div class="sfoot">
+    <button type="button" class="sbtn" data-smenu="1"><span class="sic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span><span class="slab">Menu e configurações</span></button>
+    <span class="muted" id="sideAcc" style="padding:0 10px;font-size:12px;word-break:break-all"></span>
+  </div>
+</aside>
 <div class="app" id="app">
   <header class="top">
     <div class="row">
@@ -54,6 +69,8 @@
     <textarea id="msg" class="msg" rows="1" placeholder="Escreva ou cole uma nota…"></textarea>
     <button class="round dark" id="bSend" type="button" aria-label="Enviar nota"></button>
   </footer>
+</div>
+<aside class="aside" id="aside" aria-label="Resumo rápido"></aside>
 </div>
 <div id="layer"></div>
 <script type="module" src="./src/main.js"></script>
