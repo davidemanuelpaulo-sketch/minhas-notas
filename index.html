@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#F4F3EF">
+<title>Minhas notas</title>
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="icon" href="./icon-192.png">
+<link rel="apple-touch-icon" href="./icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+<div class="auth" id="auth" hidden>
+  <form class="authbox" id="authForm" novalidate>
+    <img src="./icon-192.png" alt="" width="64" height="64" style="border-radius:16px">
+    <h1 style="font-size:24px">Minhas notas</h1>
+    <p class="muted" id="authMsg" style="margin:0;text-align:center;line-height:1.45">Entre com a sua conta para ver suas notas em qualquer aparelho.</p>
+    <div class="field" style="width:100%"><label for="authEmail">E-mail</label><input id="authEmail" type="email" autocomplete="email" required></div>
+    <div class="field" style="width:100%"><label for="authPass">Senha</label><input id="authPass" type="password" autocomplete="current-password" minlength="6" required></div>
+    <button type="submit" class="btn dark" id="authGo" style="width:100%">Entrar</button>
+    <button type="button" class="btn" id="authToggle" style="width:100%">Criar conta</button>
+    <p class="muted" id="authErr" role="alert" style="margin:0;color:#A8231B;text-align:center"></p>
+  </form>
+</div>
+
+<div class="app" id="app">
+  <header class="top">
+    <div class="row">
+      <div class="seg navseg" role="tablist" aria-label="Telas" style="--n:2">
+        <button type="button" role="tab" id="tabNotas" aria-selected="true" aria-pressed="true">Notas</button>
+        <button type="button" role="tab" id="tabResumo" aria-selected="false" aria-pressed="false">Resumo</button>
+      </div>
+      <span style="flex:1 1 auto"></span>
+      <button class="iconbtn" id="bFilter" type="button" aria-label="Filtrar por tipo ou marcador" aria-pressed="false" style="position:relative"></button>
+      <button class="iconbtn" id="bSearch" type="button" aria-label="Buscar" aria-pressed="false"></button>
+      <button class="iconbtn" id="bMenu" type="button" aria-label="Menu"></button>
+    </div>
+    <div id="searchWrap" hidden><label for="q" class="sr">Buscar nas notas</label><input id="q" class="search" type="search" placeholder="Buscar texto, pessoa, valor, marcador…"></div>
+    <div class="activef" id="active" hidden></div>
+    <div class="banner" id="banner" hidden></div>
+  </header>
+  <div class="pinbar" id="pinbar" hidden></div>
+  <main class="feed" id="feed" aria-live="polite"></main>
+  <section class="views" id="views" hidden></section>
+  <div id="toastbar" class="toastbar" role="status" hidden></div>
+  <div id="suggest"></div>
+  <footer class="composer" id="composer">
+    <button class="round" id="bPlus" type="button" aria-label="Escolher tipo de item"></button>
+    <label class="round" id="lAttach" for="fAttach" aria-label="Anexar imagens, áudio ou documentos" style="cursor:pointer"></label>
+    <input type="file" id="fAttach" class="sr" multiple accept="image/*,audio/*,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.odt">
+    <label for="msg" class="sr">Nova nota</label>
+    <textarea id="msg" class="msg" rows="1" placeholder="Escreva ou cole uma nota…"></textarea>
+    <button class="round dark" id="bSend" type="button" aria-label="Enviar nota"></button>
+  </footer>
+</div>
+<div id="layer"></div>
+<script type="module" src="./src/main.js"></script>
+</body>
+</html>
