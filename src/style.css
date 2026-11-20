@@ -25,7 +25,7 @@
 *{box-sizing:border-box}
 [hidden]{display:none!important}
 html,body{margin:0;height:100%}
-body{font-family:Inter,system-ui,-apple-system,sans-serif;background:var(--ground);color:var(--ink);-webkit-text-size-adjust:100%}
+body{font-family:'Inter Variable',Inter,system-ui,-apple-system,sans-serif;background:var(--ground);color:var(--ink);-webkit-text-size-adjust:100%}
 button,input,textarea,select{font-family:inherit;font-size:inherit;color:inherit}
 button{cursor:pointer}
 a{color:var(--tempo)}
@@ -293,3 +293,29 @@ body{background:var(--ground);color:var(--ink)}
   .aside{display:flex;flex-direction:column;gap:12px;background:var(--surface);border-left:1px solid var(--line);padding:20px 16px;overflow-y:auto;height:100dvh}
 }
 .sheet>*{flex-shrink:0}
+
+/* ---------- melhorias: data fixa, gestos, animações, lixeira, vazio, ligações ---------- */
+main.feed .sep{position:sticky;top:6px;z-index:3;box-shadow:0 1px 4px var(--shadow)}
+.card.compact{touch-action:pan-y;transition:transform .18s ease}
+.card.compact.swiping{transition:none}
+.swhint{position:absolute;top:50%;transform:translateY(-50%);font-size:12px;font-weight:700;padding:6px 10px;border-radius:999px;white-space:nowrap;pointer-events:none;background:var(--soft2);color:var(--muted)}
+.swhint.r{right:calc(100% + 10px)} .swhint.l{left:calc(100% + 10px)}
+.swhint.r.ok{background:var(--din);color:var(--surface)} .swhint.l.ok{background:var(--strong);color:#fff}
+.card.novo{animation:entrada .32s ease-out}
+.card.abrindo{animation:abrir .2s ease-out}
+@keyframes entrada{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@keyframes abrir{from{opacity:.4;transform:scale(.98)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.card.novo,.card.abrindo{animation:none}.card.compact{transition:none}}
+.toastbar.withundo{display:flex;align-items:center;justify-content:space-between;gap:10px;text-align:left}
+.toastbar[hidden]{display:none}
+.tundo{display:inline-flex;align-items:center;gap:5px;border:0;background:rgba(255,255,255,.16);color:#fff;font-weight:700;font-size:13px;border-radius:9px;padding:0 10px;min-height:36px;flex:0 0 auto}
+.repmark{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:600;color:var(--muted)}
+.links{display:flex;flex-wrap:wrap;gap:6px}
+.linkchip{display:inline-flex;align-items:center;gap:6px;height:34px;border-radius:999px;border:1px solid var(--line2);background:var(--surface);color:var(--ink);font-size:13px;font-weight:600;padding:0 12px}
+.legacy{border:1px dashed var(--line2);border-radius:12px;padding:14px;font-size:13px;color:var(--muted);text-align:center;background:var(--soft)}
+.empty{display:flex;flex-direction:column;align-items:center;gap:10px}
+.empty .btn{width:100%;max-width:260px}
+.emptyic{width:56px;height:56px;border-radius:16px;background:var(--soft2);display:flex;align-items:center;justify-content:center}
+.exemplo{display:block;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 14px;font-family:inherit;font-size:14px;color:var(--ink);text-align:left;max-width:280px}
+.app{position:relative}
+.app.dropping::after{content:'Solte para enviar';position:absolute;inset:12px;border:2px dashed var(--tempo);border-radius:20px;background:color-mix(in srgb, var(--ground) 85%, transparent);display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:var(--tempo);z-index:30;pointer-events:none}

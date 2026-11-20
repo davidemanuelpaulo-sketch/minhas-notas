@@ -57,6 +57,27 @@ function copyDir(a, b) {
 }
 copyDir(src, dst);
 
+
+// tela de abertura na cor do app (clara ou escura) com o ícone
+const stylesPath = path.join(root, 'android/app/src/main/res/values/styles.xml');
+let st = fs.readFileSync(stylesPath, 'utf8');
+st = st.replace(/<style name="AppTheme\.NoActionBarLaunch"[\s\S]*?<\/style>/,
+  `<style name="AppTheme.NoActionBarLaunch" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/splash_bg</item>
+        <item name="windowSplashScreenAnimatedIcon">@mipmap/ic_launcher_foreground</item>
+        <item name="postSplashScreenTheme">@style/AppTheme.NoActionBar</item>
+    </style>`);
+fs.writeFileSync(stylesPath, st);
+
+// ícone temático (Android 13+): camada monocromática
+for (const f of ['ic_launcher.xml', 'ic_launcher_round.xml']) {
+  const p2 = path.join(root, 'android/app/src/main/res/mipmap-anydpi-v26', f);
+  if (!fs.existsSync(p2)) continue;
+  let x = fs.readFileSync(p2, 'utf8');
+  if (!x.includes('<monochrome')) x = x.replace('</adaptive-icon>', '    <monochrome android:drawable="@mipmap/ic_launcher_monochrome"/>\n</adaptive-icon>');
+  fs.writeFileSync(p2, x);
+}
+
 // versão: usa o número da execução do GitHub Actions
 const gradlePath = path.join(root, 'android/app/build.gradle');
 let g = fs.readFileSync(gradlePath, 'utf8');

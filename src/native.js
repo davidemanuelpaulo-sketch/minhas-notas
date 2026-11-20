@@ -78,21 +78,30 @@ function desired(items) {
     if (it.tipo === 'agenda' && d.aviso && /^\d{4}-\d{2}-\d{2}$/.test(d.data || '')) {
       const ev = at(d.data, d.hora); const off = d.aviso === '1h' ? 3600e3 : d.aviso === '1d' ? 86400e3 : 0;
       const when = new Date(ev.getTime() - off);
-      if (when.getTime() > now) out.push({ id: hashId(it.id + ':a'), title: d.titulo || 'Compromisso', body: [fmt(ev), d.hora, d.local].filter(Boolean).join(' · '), at: when, itemId: it.id });
+      if (when.getTime() > now) out.push({ id: hashId(it.id + ':a'), title: d.titulo || 'Compromisso', body: [fmt(ev), d.hora, d.local].filter(Boolean).join(' · '), at: when, itemId: it.id, kind: 'AGENDA' });
     }
     if (it.tipo === 'despesa' && d.situacao !== 'pago' && /^\d{4}-\d{2}-\d{2}$/.test(d.vencimento || '')) {
       const day = at(d.vencimento, '09:00'); const before = new Date(day.getTime() - 86400e3);
       const valor = d.valor != null ? ' · ' + BRL.format(d.valor) : '';
-      if (before.getTime() > now) out.push({ id: hashId(it.id + ':v1'), title: 'Vence amanhã: ' + (d.descricao || 'despesa'), body: (d.para ? 'Para ' + d.para : 'Despesa a pagar') + valor, at: before, itemId: it.id });
-      if (day.getTime() > now) out.push({ id: hashId(it.id + ':v0'), title: 'Vence hoje: ' + (d.descricao || 'despesa'), body: (d.para ? 'Para ' + d.para : 'Despesa a pagar') + valor, at: day, itemId: it.id });
+      if (before.getTime() > now) out.push({ id: hashId(it.id + ':v1'), title: 'Vence amanhã: ' + (d.descricao || 'despesa'), body: (d.para ? 'Para ' + d.para : 'Despesa a pagar') + valor, at: before, itemId: it.id, kind: 'DESPESA' });
+      if (day.getTime() > now) out.push({ id: hashId(it.id + ':v0'), title: 'Vence hoje: ' + (d.descricao || 'despesa'), body: (d.para ? 'Para ' + d.para : 'Despesa a pagar') + valor, at: day, itemId: it.id, kind: 'DESPESA' });
     }
   });
+  // lembretes adiados pelo botão da notificação
+  const ids = new Set(items.filter(i => !(i.tipo === 'despesa' && i.dados && i.dados.situacao === 'pago')).map(i => i.id));
+  const snz = loadSnooze().filter(n => n.at > now && ids.has(n.itemId));
+  saveSnooze(snz);
+  snz.forEach(n => out.push(Object.assign({}, n, { at: new Date(n.at) })));
   return out.sort((a, b) => a.at - b.at).slice(0, 60);
 }
 
+function loadSnooze() { try { return JSON.parse(localStorage.getItem('mn-snooze') || '[]'); } catch (e) { return []; } }
+function saveSnooze(a) { try { localStorage.setItem('mn-snooze', JSON.stringify(a)); } catch (e) { /* nada */ } }
+let lastItems = [];
 let schedT = null, asked = false;
 async function reschedule(items) {
   const want = desired(items);
+  lastItems = items;
   const sig = JSON.stringify(want.map(n => [n.id, n.at.getTime(), n.title, n.body]));
   if (sig === localStorage.getItem('mn-notif-sig')) return;
   if (want.length && !asked) {
@@ -103,16 +112,36 @@ async function reschedule(items) {
   const pend = await LocalNotifications.getPending().catch(() => ({ notifications: [] }));
   if (pend.notifications && pend.notifications.length) await LocalNotifications.cancel({ notifications: pend.notifications.map(n => ({ id: n.id })) }).catch(() => null);
   if (want.length) {
-    await LocalNotifications.schedule({ notifications: want.map(n => ({ id: n.id, title: n.title, body: n.body, schedule: { at: n.at, allowWhileIdle: true }, extra: { itemId: n.itemId } })) }).catch(e => console.error(e));
+    await LocalNotifications.schedule({ notifications: want.map(n => ({ id: n.id, title: n.title, body: n.body, smallIcon: 'ic_stat_notas', actionTypeId: n.kind || '', schedule: { at: n.at, allowWhileIdle: true }, extra: { itemId: n.itemId, kind: n.kind || '' } })) }).catch(e => console.error(e));
   }
   try { localStorage.setItem('mn-notif-sig', sig); } catch (e) { /* nada */ }
 }
 function setupNotifications() {
   if (!isNative) return;
   window.__onItemsChanged = items => { clearTimeout(schedT); schedT = setTimeout(() => reschedule(items), 1500); };
+  LocalNotifications.registerActionTypes({ types: [
+    { id: 'DESPESA', actions: [{ id: 'pagar', title: 'Marcar como pago' }, { id: 'adiar', title: 'Lembrar amanhã' }] },
+    { id: 'AGENDA', actions: [{ id: 'adiar', title: 'Lembrar em 1 hora' }] }
+  ] }).catch(() => null);
   LocalNotifications.addListener('localNotificationActionPerformed', ev => {
-    const id = ev && ev.notification && ev.notification.extra && ev.notification.extra.itemId;
-    if (id) whenReady(h => setTimeout(() => h.openItem(id), 300));
+    const n = ev && ev.notification; const ex = (n && n.extra) || {}; const id = ex.itemId; if (!id) return;
+    LocalNotifications.removeDeliveredNotifications({ notifications: [n] }).catch(() => null);
+    if (ev.actionId === 'adiar') {
+      const later = Date.now() + (ex.kind === 'AGENDA' ? 3600e3 : 86400e3);
+      const snz = loadSnooze().filter(x => x.itemId !== id);
+      snz.push({ id: hashId(id + ':snooze'), title: n.title, body: n.body, at: later, itemId: id, kind: ex.kind || '' });
+      saveSnooze(snz);
+      try { localStorage.removeItem('mn-notif-sig'); } catch (e) { /* nada */ }
+      if (lastItems.length) reschedule(lastItems);
+      else LocalNotifications.schedule({ notifications: [{ id: hashId(id + ':snooze'), title: n.title, body: n.body, smallIcon: 'ic_stat_notas', actionTypeId: ex.kind || '', schedule: { at: new Date(later), allowWhileIdle: true }, extra: ex }] }).catch(() => null);
+      whenReady(h => h.toast && h.toast(ex.kind === 'AGENDA' ? 'Vou lembrar de novo em 1 hora.' : 'Vou lembrar de novo amanhã.'));
+      return;
+    }
+    if (ev.actionId === 'pagar') {
+      whenReady(h => { let tries = 0; const go = () => { if (h.hasItem(id)) { h.payItem(id); h.toast && h.toast('Marcado como pago pela notificação.'); h.openItem(id); } else if (tries++ < 20) setTimeout(go, 500); }; go(); });
+      return;
+    }
+    whenReady(h => setTimeout(() => h.openItem(id), 300));
   });
 }
 
@@ -120,10 +149,10 @@ function setupNotifications() {
 export async function saveFile({ filename, data }) {
   if (isNative) {
     const r = await Filesystem.writeFile({ path: filename, data, directory: Directory.Cache, encoding: Encoding.UTF8 });
-    await Share.share({ title: filename, text: 'Backup do Minhas notas', files: [r.uri], dialogTitle: 'Salvar backup' });
+    await Share.share({ title: filename, text: /\.csv$/i.test(filename) ? 'Planilha do Minhas notas' : 'Backup do Minhas notas', files: [r.uri], dialogTitle: 'Salvar arquivo' });
     return;
   }
-  const blob = new Blob([data], { type: 'application/json' });
+  const blob = new Blob([data], { type: /\.csv$/i.test(filename) ? 'text/csv;charset=utf-8' : 'application/json' });
   const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = filename;
   document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 5000);
 }

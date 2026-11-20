@@ -1,3 +1,4 @@
+import '@fontsource-variable/inter';
 import './style.css';
 import { createClient } from '@supabase/supabase-js';
 import { SUPABASE_URL, SUPABASE_KEY } from './config.js';
