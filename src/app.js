@@ -1031,6 +1031,7 @@ function paintComposerIcons(){ document.getElementById('bPlus').innerHTML=svg('p
 paintComposerIcons();
 
 window.__notas={detectar, parseMoney, sanitize, migrate, S, render};
+window.__setSync=msg=>{ if(S.mode==='db') setBanner(msg||''); };
 window.__notasHooks={
   async ingestShare(p){ const texts=(p.texts||[]).filter(Boolean).join('\n').trim(); const files=p.files||[];
     UI.view='feed'; closeSheet();

@@ -31,6 +31,13 @@ export function makeCloud(sb, user, onDownload) {
   }
 
   function scheduleRetry() { clearTimeout(retryT); retryT = setTimeout(flush, 15000); }
+  function status(err) {
+    if (!window.__setSync) return;
+    if (!err) { window.__setSync(null); return; }
+    if (!navigator.onLine) { window.__setSync('Sem internet. Suas mudanças ficam neste aparelho e serão enviadas quando a conexão voltar.'); return; }
+    const m = String(err.message || err.code || err);
+    window.__setSync('Não foi possível sincronizar com a nuvem (' + m.slice(0, 80) + '). Suas mudanças ficam neste aparelho e serão enviadas depois.');
+  }
 
   async function flush() {
     if (flushing) return; flushing = true;
@@ -43,10 +50,10 @@ export function makeCloud(sb, user, onDownload) {
         } else {
           ({ error } = await sb.from(TABLE).delete().eq('user_id', uid).eq('id', id));
         }
-        if (error) { scheduleRetry(); return; }
+        if (error) { status(error); scheduleRetry(); return; }
         if (outbox[id] === o) { delete outbox[id]; save(OUT, outbox); }
       }
-    } catch (e) { scheduleRetry(); }
+    } catch (e) { status(e); scheduleRetry(); }
     finally { flushing = false; }
   }
 
@@ -60,10 +67,10 @@ export function makeCloud(sb, user, onDownload) {
       if (data.length < PAGE) break;
     }
     for (const id in outbox) { if (outbox[id].op === 'set') fresh[id] = outbox[id].body; else delete fresh[id]; }
-    cache = fresh; save(CACHE, cache); loadedOnce = true; emit(false);
+    cache = fresh; save(CACHE, cache); loadedOnce = true; emit(false); if (!Object.keys(outbox).length) status(null);
   }
 
-  function refresh() { flush().then(() => fetchAll()).catch(() => { if (!loadedOnce) { loadedOnce = true; emit(false); } }); }
+  function refresh() { flush().then(() => fetchAll()).catch(e => { status(e); if (!loadedOnce) { loadedOnce = true; emit(false); } }); }
 
   // tempo real: mudanças vindas de outros aparelhos
   sb.channel('itens-' + uid)

@@ -13,6 +13,8 @@ create table if not exists public.itens (
 
 -- 2. Segurança: cada pessoa só lê e altera as próprias notas
 alter table public.itens enable row level security;
+grant select, insert, update, delete on table public.itens to authenticated;
+revoke all on table public.itens from anon;
 
 drop policy if exists "itens: dono lê"     on public.itens;
 drop policy if exists "itens: dono cria"   on public.itens;
