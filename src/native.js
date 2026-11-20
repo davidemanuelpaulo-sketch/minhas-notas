@@ -4,6 +4,7 @@ import { Capacitor } from '@capacitor/core';
 import { Filesystem, Directory, Encoding } from '@capacitor/filesystem';
 import { LocalNotifications } from '@capacitor/local-notifications';
 import { Share } from '@capacitor/share';
+import { App } from '@capacitor/app';
 import { CapacitorAudioRecorder } from '@capgo/capacitor-audio-recorder';
 import { CapacitorShareTarget } from '@capgo/capacitor-share-target';
 
@@ -157,7 +158,17 @@ export async function saveFile({ filename, data }) {
   document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 5000);
 }
 
+/* ---------- botão/gesto de voltar do Android ---------- */
+function setupBack() {
+  if (!isNative) return;
+  App.addListener('backButton', ({ canGoBack }) => {
+    try { if (window.__notasBack && window.__notasBack()) return; } catch (e) { console.error(e); }
+    if (canGoBack) history.back(); else App.minimizeApp();
+  });
+}
+
 export function setupNative() {
+  setupBack();
   setupRecorder();
   setupShare();
   setupNotifications();

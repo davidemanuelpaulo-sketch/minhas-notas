@@ -466,3 +466,29 @@ body{background-image:var(--grid);background-attachment:fixed}
 .trow>.ghost{justify-self:stretch;width:auto;margin-right:10px}
 .tday{flex:0 0 auto}
 .feed.linha .card .cright .time,.feed.linha .chead .time{display:none}
+
+/* ---------- gestos: tocar para editar, segurar / botão direito para o menu ---------- */
+.cmore{display:none;width:28px;height:28px;margin:-4px -6px -4px 2px;border:0;border-radius:8px;background:transparent;color:var(--muted);align-items:center;justify-content:center;cursor:pointer;flex:0 0 auto}
+.cmore:hover,.cmore:focus-visible{background:var(--soft);color:var(--ink)}
+@media (hover:hover) and (pointer:fine){
+  .card:hover .cmore,.card:focus-within .cmore,.cmore:focus-visible{display:inline-flex}
+  .card [data-f]{cursor:text;border-radius:6px;transition:box-shadow .12s, background-color .12s}
+  .card [data-f]:hover{box-shadow:0 0 0 3px color-mix(in srgb, var(--ink) 7%, transparent);background:color-mix(in srgb, var(--ink) 5%, transparent)}
+  .card[data-open]:not(.compact){cursor:default}
+  .card .chead{cursor:pointer}
+}
+@media (hover:none),(pointer:coarse){
+  #feed .card{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
+  #feed .card [data-f]:active{background:color-mix(in srgb, var(--ink) 6%, transparent);border-radius:6px}
+}
+.ctxmenu{position:fixed;z-index:80;min-width:200px;max-width:260px;background:var(--surface);color:var(--ink);border:1px solid var(--line2);border-radius:14px;box-shadow:0 12px 32px rgba(0,0,0,.18),0 2px 6px rgba(0,0,0,.08);padding:6px;display:flex;flex-direction:column;animation:ctxIn .14s ease-out;transform-origin:top left}
+.ctxmenu button{display:flex;align-items:center;gap:12px;height:44px;padding:0 12px;border:0;background:transparent;color:inherit;font:inherit;font-size:15px;font-weight:500;border-radius:9px;text-align:left;cursor:pointer}
+.ctxmenu button svg{color:var(--muted);flex:0 0 auto}
+.ctxmenu button:hover,.ctxmenu button:focus-visible{background:var(--soft);outline:none}
+.ctxmenu button.danger,.ctxmenu button.danger svg{color:var(--pagar)}
+.ctxmenu hr{border:0;border-top:1px solid var(--line);margin:4px 6px}
+@keyframes ctxIn{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.ctxmenu{animation:none}}
+:root[data-estilo="caderno"] .ctxmenu{border-radius:6px 14px 14px 14px}
+:root[data-estilo="silencio"][data-theme="dark"] .ctxmenu{background:#151515}
+.feed.linha .cmore{margin-left:auto}
