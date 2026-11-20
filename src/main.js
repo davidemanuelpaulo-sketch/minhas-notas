@@ -1,4 +1,7 @@
 import '@fontsource-variable/inter';
+import '@fontsource-variable/fraunces';
+import '@fontsource/ibm-plex-mono/400.css';
+import '@fontsource/ibm-plex-mono/600.css';
 import './style.css';
 import { createClient } from '@supabase/supabase-js';
 import { SUPABASE_URL, SUPABASE_KEY } from './config.js';

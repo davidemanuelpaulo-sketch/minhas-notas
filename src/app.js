@@ -2,23 +2,23 @@
 "use strict";
 /* ---------- ícones ---------- */
 const P = {
-  texto:'<path d="M17 10H3M21 6H3M21 14H3M17 18H3"/>',
-  imagem:'<rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/>',
-  audio:'<rect x="9" y="2" width="6" height="12" rx="3"/><path d="M19 10v1a7 7 0 0 1-14 0v-1M12 18v4"/>',
-  documento:'<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/>',
-  link:'<path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>',
-  agenda:'<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>',
+  texto:'<path d="M4 20h16"/><path d="M14.5 4.5l3 3L8 17H5v-3z"/>',
+  imagem:'<rect x="4" y="3" width="16" height="18" rx="2"/><rect x="7" y="6" width="10" height="9" rx="1"/><path d="M8 18h4"/>',
+  audio:'<path d="M4 10v4M8 7v10M12 4v16M16 8v8M20 11v2"/>',
+  documento:'<path d="M14 3H6.5A2.5 2.5 0 0 0 4 5.5v13A2.5 2.5 0 0 0 6.5 21h11a2.5 2.5 0 0 0 2.5-2.5V9z"/><path d="M14 3v6h6"/><path d="M8 13h8M8 17h5"/>',
+  link:'<path d="M9 15l6-6"/><path d="M11 6.5l1.6-1.6a4 4 0 0 1 5.6 5.6L16.6 12"/><path d="M13 17.5l-1.6 1.6a4 4 0 0 1-5.6-5.6L7.4 12"/>',
+  agenda:'<rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M8 3v4M16 3v4M3.5 10h17"/><circle cx="12" cy="15" r="1.6"/>',
   bell:'<path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/>',
-  despesa:'<path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>',
-  apagar:'<circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>',
-  pago:'<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="M22 4L12 14.01l-3-3"/>',
-  compra:'<circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>',
-  contato:'<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>',
-  email:'<rect x="2" y="4" width="20" height="16" rx="2"/><path d="M22 6l-10 7L2 6"/>',
+  despesa:'<circle cx="12" cy="12" r="8.5"/><path d="M14.5 9.5c-.5-1-1.5-1.5-2.5-1.5-1.4 0-2.5.8-2.5 2s1.1 1.6 2.5 2 2.5.8 2.5 2-1.1 2-2.5 2c-1 0-2-.5-2.5-1.5M12 6.5V8M12 16v1.5"/>',
+  apagar:'<path d="M6.5 3h11M6.5 21h11"/><path d="M8 3v2.5a4 4 0 0 0 1.7 3.3L12 10.5l2.3-1.7A4 4 0 0 0 16 5.5V3M8 21v-2.5a4 4 0 0 1 1.7-3.3L12 13.5l2.3 1.7a4 4 0 0 1 1.7 3.3V21"/>',
+  pago:'<circle cx="12" cy="12" r="8.5"/><path d="M8.5 12.5l2.3 2.3 4.7-5"/>',
+  compra:'<path d="M5 8h14l-1.2 11.2a2 2 0 0 1-2 1.8H8.2a2 2 0 0 1-2-1.8z"/><path d="M9 10V7a3 3 0 0 1 6 0v3"/>',
+  contato:'<rect x="3" y="5" width="18" height="14" rx="2.5"/><circle cx="9" cy="11" r="2.3"/><path d="M5.8 16.2c.6-1.6 1.8-2.4 3.2-2.4s2.6.8 3.2 2.4M14.5 10h3.5M14.5 13.5h3"/>',
+  email:'<rect x="3" y="5.5" width="18" height="13" rx="2.5"/><path d="M4 7l8 6 8-6"/>',
   phone:'<path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/>',
-  local:'<path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>',
-  lista:'<path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>',
-  itens:'<path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/>',
+  local:'<path d="M12 21s-6-5.6-6-10.5a6 6 0 0 1 12 0C18 15.4 12 21 12 21z"/><circle cx="12" cy="10.5" r="2.2"/>',
+  lista:'<path d="M4 6.5l1.5 1.5L8.5 5M4 12.5l1.5 1.5 3-3M11 6.5h9M11 12.5h9M11 18.5h9M4.5 18.5h3"/>',
+  itens:'<path d="M9 6.5h11M9 12h11M9 17.5h11"/><circle cx="5" cy="6.5" r="1.3"/><circle cx="5" cy="12" r="1.3"/><circle cx="5" cy="17.5" r="1.3"/>',
   ul:'<path d="M9 6h12M9 12h12M9 18h12"/><circle cx="4" cy="6" r="1.2" fill="currentColor"/><circle cx="4" cy="12" r="1.2" fill="currentColor"/><circle cx="4" cy="18" r="1.2" fill="currentColor"/>',
   ol:'<path d="M10 6h11M10 12h11M10 18h11M4 4v4M3 8h2M3 12.5c0-1 2-1 2 0s-2 1.5-2 2.5h2M3 17h2v4H3M3 19h2"/>',
   quote:'<path d="M3 21c3 0 7-1 7-8V5H3v8h4M14 21c3 0 7-1 7-8V5h-7v8h4"/>',
@@ -290,11 +290,11 @@ function saveTags(){
   if(S.mode==='db'){ const tags=clone(S.tags); return enqueue(CFG, ()=>S.col.doc(CFG).set({kind:'cfg', tags}).catch(writeErr)); }
   try{ localStorage.setItem(TKEY, JSON.stringify(S.tags)); }catch(e){} return Promise.resolve();
 }
-function loadPref(){ try{ const p=JSON.parse(localStorage.getItem(PKEY)||'{}'); if(p.exib==='expandida') UI.exib='expandida'; if(p.tema==='claro'||p.tema==='escuro') UI.tema=p.tema; }catch(e){} applyTheme(); }
+function loadPref(){ try{ const p=JSON.parse(localStorage.getItem(PKEY)||'{}'); if(p.exib==='expandida') UI.exib='expandida'; if(p.tema==='claro'||p.tema==='escuro') UI.tema=p.tema; if(['caderno','silencio','classico'].indexOf(p.estilo)>=0) UI.estilo=p.estilo; if(p.layout==='linha') UI.layout='linha'; if(/^#[0-9A-Fa-f]{6}$/.test(p.accent||'')) UI.accent=p.accent; }catch(e){} applyTheme(); }
 const darkMQ=window.matchMedia?window.matchMedia('(prefers-color-scheme: dark)'):null;
-function applyTheme(){ const dark=UI.tema==='escuro' || (UI.tema==='auto' && darkMQ && darkMQ.matches); document.documentElement.setAttribute('data-theme', dark?'dark':'light'); const mt=document.querySelector('meta[name="theme-color"]'); if(mt) mt.setAttribute('content', dark?'#131416':'#F4F3EF'); }
+function applyTheme(){ const dark=UI.tema==='escuro' || (UI.tema==='auto' && darkMQ && darkMQ.matches); const de=document.documentElement; de.setAttribute('data-theme', dark?'dark':'light'); de.setAttribute('data-estilo', UI.estilo); if(UI.accent){ de.setAttribute('data-accent','1'); de.style.setProperty('--accent-c', UI.accent); } else { de.removeAttribute('data-accent'); de.style.removeProperty('--accent-c'); } const mt=document.querySelector('meta[name="theme-color"]'); if(mt) mt.setAttribute('content', getComputedStyle(de).getPropertyValue('--ground').trim()||'#F4F3EF'); }
 if(darkMQ){ try{ darkMQ.addEventListener('change', ()=>{ if(UI.tema==='auto') applyTheme(); }); }catch(e){ try{ darkMQ.addListener(()=>{ if(UI.tema==='auto') applyTheme(); }); }catch(e2){} } }
-function savePref(){ try{ localStorage.setItem(PKEY, JSON.stringify({exib:UI.exib, tema:UI.tema})); }catch(e){} }
+function savePref(){ try{ localStorage.setItem(PKEY, JSON.stringify({exib:UI.exib, tema:UI.tema, estilo:UI.estilo, layout:UI.layout, accent:UI.accent})); }catch(e){} }
 function loadLocal(){ try{ const raw=localStorage.getItem(LKEY); if(raw){ const arr=JSON.parse(raw); arr.forEach(it=>S.items.set(it.id,it)); } }catch(e){} }
 function saveLocal(){ try{ localStorage.setItem(LKEY, JSON.stringify(Array.from(S.items.values()))); }catch(e){ toast('Não foi possível salvar neste navegador.'); } }
 function body(it){ const o=clone(it); delete o.id; return o; }
@@ -339,7 +339,7 @@ async function initStore(){
 function setBanner(t){ const b=document.getElementById('banner'); b.textContent=t; b.hidden=!t; }
 
 /* ---------- interface ---------- */
-const UI = { filter:'tudo', tag:null, q:'', view:'feed', mes:null, exib:'compacta', tema:'auto', open:new Set(), pinIdx:0, fresh:new Set(), justOpened:null };
+const UI = { filter:'tudo', tag:null, q:'', view:'feed', mes:null, exib:'compacta', tema:'auto', estilo:'caderno', layout:'chat', accent:'', stamp:new Set(), viaComposer:new Set(), origin:null, open:new Set(), pinIdx:0, fresh:new Set(), justOpened:null };
 loadPref();
 let toastT=null;
 let undoFn=null;
@@ -370,15 +370,20 @@ function render(){
   const list=sorted().filter(matches);
   if(!S.loaded && S.items.size===0){ feed.innerHTML='<div class="empty">Carregando suas notas…</div>'; return; }
   if(list.length===0){
+    feed.classList.remove('linha');
     feed.innerHTML = sorted().length===0
       ? '<div class="empty"><b style="color:var(--ink);font-size:16px">Comece escrevendo abaixo</b><br>Experimente “pagar 180 ao Seu Zé dia 20”, “reunião sexta 19h” ou cole um link.<br><br>Formate como no WhatsApp: *negrito*, _itálico_, ~riscado~ e linhas começando com “-” viram lista.</div>'
       : emptyFor();
     return;
   }
-  let html='', lastDay='';
-  list.forEach(it=>{ const day=fmtDia(it.criado); if(day!==lastDay){ html+='<div class="sep">'+esc(day)+'</div>'; lastDay=day; } html+=card(it); });
-  feed.innerHTML=html;
-  if(wantEnd || atEnd){ feed.scrollTop=feed.scrollHeight; }
+  feed.classList.toggle('linha', UI.layout==='linha');
+  if(UI.layout==='linha'){ renderLinha(feed, list, atEnd); }
+  else {
+    let html='', lastDay='';
+    list.forEach(it=>{ const day=fmtDia(it.criado); if(day!==lastDay){ html+='<div class="sep">'+esc(day)+'</div>'; lastDay=day; } html+=card(it); });
+    feed.innerHTML=html;
+    if(wantEnd || atEnd){ feed.scrollTop=feed.scrollHeight; }
+  }
   wantEnd=false; UI.justOpened=null;
   notifyChanged();
 }
@@ -393,6 +398,29 @@ function emptyFor(){
   else if(T[tp].file) h+='<span>Toque no clipe, ao lado da caixa de texto, para escolher '+(tp==='imagem'?'fotos':tp==='audio'?'um áudio':'um arquivo')+(tp==='audio'?', ou no microfone para gravar.':'.')+'</span>';
   h+='<button type="button" class="btn dark" data-newtype="'+tp+'">Criar '+esc(nome)+'</button><button type="button" class="btn" data-clearf="1">Ver todos os itens</button></div>';
   return h;
+}
+function dayHead(d){ return '<div class="tdaynum"><b>'+d.getDate()+'</b><span>'+WD[d.getDay()]+'<br>'+MES[d.getMonth()]+(d.getFullYear()!==new Date().getFullYear()?' '+d.getFullYear():'')+'</span></div>'; }
+function renderLinha(feed, list, atEnd){
+  let html='', cur=null, open=false;
+  const close=()=>{ if(open){ html+='</div></section>'; open=false; } };
+  list.forEach(it=>{ const d=new Date(it.criado); d.setHours(0,0,0,0); if(!cur || d.getTime()!==cur.getTime()){ close(); cur=d; html+='<section class="tday">'+dayHead(d)+'<div class="titems">'; open=true; } html+='<div class="trow"><span class="ttime">'+fmtHora(it.criado)+'</span>'+card(it)+'</div>'; });
+  close();
+  // próximos compromissos e vencimentos (por data marcada)
+  const showFut=!UI.q && !UI.tag && (UI.filter==='tudo'||UI.filter==='agenda'||UI.filter==='despesa');
+  const fut=[]; const now=new Date(); const t=today(); const lim=new Date(t); lim.setDate(lim.getDate()+30);
+  if(showFut) sorted().forEach(i=>{ const d=i.dados||{}; let ds=null, hr=''; if(i.tipo==='agenda' && UI.filter!=='despesa'){ ds=d.data; hr=d.hora||''; } else if(i.tipo==='despesa' && d.situacao!=='pago' && UI.filter!=='agenda'){ ds=d.vencimento; } const dt=parseIso(ds); if(!dt || dt<t || dt>lim) return; if(dt.getTime()===t.getTime() && hr){ const [hh,mm]=hr.split(':').map(Number); const at=new Date(t); at.setHours(hh,mm); if(at<now) return; } fut.push({dt,hr,i}); });
+  fut.sort((a,b)=>a.dt-b.dt || String(a.hr).localeCompare(String(b.hr)));
+  html+='<div class="agora" id="agora">Agora · '+pad(now.getHours())+':'+pad(now.getMinutes())+'</div>';
+  if(fut.length){
+    let fd=null, fo=false;
+    fut.slice(0,25).forEach(f=>{ if(!fd || f.dt.getTime()!==fd.getTime()){ if(fo) html+='</div></section>'; fd=f.dt; html+='<section class="tday futuro">'+dayHead(f.dt)+'<div class="titems">'; fo=true; }
+      const d=f.i.dados; const isD=f.i.tipo==='despesa';
+      html+='<div class="trow"><span class="ttime">'+esc(f.hr||(isD?'vence':'—'))+'</span><button type="button" class="ghost" data-goto="'+esc(f.i.id)+'"><span style="color:'+famColor(f.i)+';display:flex">'+svg(iconOf(f.i),18)+'</span><span style="display:flex;flex-direction:column;gap:1px;min-width:0"><b>'+esc(isD?(d.descricao||'Despesa'):(d.titulo||'Compromisso'))+'</b><span class="gsub">'+esc(isD?('A pagar · '+fmtMoney(d.valor)+(d.para?' · '+d.para:'')):[d.local, d.repetir?'repete '+repLabel(d.repetir):''].filter(Boolean).join(' · ')||'Agenda')+'</span></span></button></div>';
+    });
+    if(fo) html+='</div></section>';
+  } else if(showFut) html+='<p class="muted" style="text-align:center;margin:0 0 12px">Nada marcado para os próximos 30 dias.</p>';
+  feed.innerHTML=html;
+  if(wantEnd || atEnd){ const ag=document.getElementById('agora'); feed.scrollTop = ag ? Math.max(0, ag.offsetTop - feed.clientHeight*0.62) : feed.scrollHeight; }
 }
 function activeCount(){ return (UI.filter!=='tudo'?1:0)+(UI.tag?1:0); }
 function renderActive(){
@@ -433,7 +461,7 @@ function gallery(id, as, alt){
   return h+'</div>';
 }
 function fullCard(it){
-  const d=it.dados||{}; const fk=famKey(it); let cls='card f-'+fk+(UI.justOpened===it.id?' abrindo':'')+(UI.fresh.has(it.id)?' novo':''); const id=esc(it.id);
+  const d=it.dados||{}; const fk=famKey(it); let cls='card f-'+fk+(UI.justOpened===it.id?' abrindo':'')+(UI.fresh.has(it.id)?' novo':'')+(UI.viaComposer.has(it.id)?' doenvio':'')+(UI.stamp.has(it.id)?' carimbo':''); const id=esc(it.id);
   let inner='';
   switch(it.tipo){
     case 'texto': {
@@ -461,7 +489,8 @@ function fullCard(it){
   }
   const tags=itemTags(it); const compactMode=UI.exib==='compacta';
   inner+='<div class="cfoot">'+(tags.length?'<div class="tpills">'+tags.map(t=>tagPill(t)).join('')+'</div>':'')+'<div class="cacts"><button type="button" class="mini" data-edit="'+id+'">'+svg('edit',14)+'Editar</button>'+(compactMode?'<button type="button" class="mini" data-collapse="'+id+'" aria-expanded="true">'+'<span style="display:inline-flex;transform:rotate(180deg)">'+svg('chevron',14)+'</span>Recolher</button>':'')+'</div></div>';
-  return '<div class="'+cls+'" data-open="'+id+'" tabindex="0" aria-label="'+esc(typeLabel(it))+': '+esc(cardTitle(it))+(compactMode?' (expandido; toque para recolher)':'')+'">'+inner+'</div>';
+  const og=(UI.origin && UI.origin.id===it.id)?' style="--ox:'+UI.origin.ox+'%;--oy:'+UI.origin.oy+'%"':'';
+  return '<div class="'+cls+'"'+og+' data-open="'+id+'" tabindex="0" aria-label="'+esc(typeLabel(it))+': '+esc(cardTitle(it))+(compactMode?' (expandido; toque para recolher)':'')+'">'+inner+'</div>';
 }
 function summary(it){
   const d=it.dados||{}; let t='', sub='', right='', thumb='';
@@ -494,7 +523,7 @@ function quickAction(it){
 }
 function card(it){
   if(UI.exib!=='compacta' || UI.open.has(it.id)) return fullCard(it);
-  const sm=summary(it); const id=esc(it.id); let cls='card compact f-'+famKey(it)+(UI.fresh.has(it.id)?' novo':'');
+  const sm=summary(it); const id=esc(it.id); let cls='card compact f-'+famKey(it)+(UI.fresh.has(it.id)?' novo':'')+(UI.viaComposer.has(it.id)?' doenvio':'')+(UI.stamp.has(it.id)?' carimbo':'');
   if(it.tipo==='texto' && it.dados && it.dados.estilo==='destaque') cls+=' st-destaque';
   const tags=itemTags(it);
   if(it.tipo==='lista'){ const its=it.dados.itens||[]; const k=its.findIndex(x=>!x.ok); if(k>=0) sm.sub='Próximo: '+its[k].t; else if(its.length) sm.sub='Tudo concluído'; }
@@ -554,6 +583,7 @@ function send(asText){
   let it;
   if(!asText && sug){ it=newItem(sug.tipo, clone(sug.dados)); it.hist[0].txt='Criado a partir do texto “'+v.slice(0,80)+'”'; }
   else it=newItem('texto', hasWa(v)?{html:waToHtml(v), texto:plainOf(waToHtml(v))}:{texto:v});
+  UI.viaComposer.add(it.id); setTimeout(()=>UI.viaComposer.delete(it.id), 1200);
   put(it); resetComposer();
 }
 msg.addEventListener('input', ()=>{ autosize(); updateSuggest(); updateSendBtn(); });
@@ -764,6 +794,7 @@ function markPaid(id, silent){
   const it=S.items.get(id); if(!it || it.tipo!=='despesa' || it.dados.situacao==='pago') return;
   const prev=clone(it); const n=clone(it);
   n.dados.situacao='pago'; n.dados.pagoEm=isoOf(today()); n.pagoNoApp=true; addHist(n,'Marcado como pago');
+  UI.stamp.add(id); setTimeout(()=>{ UI.stamp.delete(id); scheduleRender(); }, 1100);
   const nx=makeNext(n); if(nx){ n.proxId=nx.id; put(nx); }
   put(n); buzz();
   if(!silent) toastUndo(nx?'Pago. Próximo vencimento: '+fmtData(nx.dados.vencimento)+'.':'Marcado como pago.', ()=>{ put(prev); if(nx) remove(nx.id); });
@@ -946,8 +977,12 @@ layer.addEventListener('click', ev=>{
   if(ds.restore){ const it=S.items.get(ds.restore); if(it){ const n=clone(it); delete n.excluido; addHist(n,'Restaurado da lixeira'); put(n); toast('Item restaurado.'); } openTrash(true); return; }
   if(ds.purge){ remove(ds.purge); toast('Excluído de vez.'); openTrash(true); return; }
   if(ds.purgeall){ trashed().forEach(i=>remove(i.id)); toast('Lixeira esvaziada.'); openTrash(true); return; }
-  if(ds.tema){ UI.tema=ds.tema; savePref(); applyTheme(); openMenu(); return; }
-  if(ds.exib){ UI.exib=ds.exib; savePref(); UI.open.clear(); openMenu(); scheduleRender(); return; }
+  if(ds.aparencia){ openAparencia(); return; }
+  if(ds.tema){ UI.tema=ds.tema; savePref(); applyTheme(); openAparencia(true); scheduleRender(); return; }
+  if(ds.exib){ UI.exib=ds.exib; savePref(); UI.open.clear(); openAparencia(true); scheduleRender(); return; }
+  if(ds.estilo){ UI.estilo=ds.estilo; savePref(); applyTheme(); openAparencia(true); scheduleRender(); return; }
+  if(ds.layout){ UI.layout=ds.layout; savePref(); wantEnd=true; openAparencia(true); scheduleRender(true); return; }
+  if(ds.accent!=null){ UI.accent=ds.accent; savePref(); applyTheme(); openAparencia(true); return; }
 });
 
 /* ---------- ações no feed ---------- */
@@ -984,7 +1019,7 @@ function onFeedClick(ev){
   const id=o.dataset.open;
   if(o.closest('#views') || o.closest('#aside')){ UI.view='feed'; expandAndShow(id); return; }
   if(UI.exib!=='compacta') return;
-  if(UI.open.has(id)){ if(ev.target.closest('a,button,input,audio,select,textarea,label')) return; UI.open.delete(id); } else { UI.open.add(id); UI.justOpened=id; }
+  if(UI.open.has(id)){ if(ev.target.closest('a,button,input,audio,select,textarea,label')) return; UI.open.delete(id); } else { UI.open.add(id); UI.justOpened=id; const cr=(o.closest('.card')||o).getBoundingClientRect(); UI.origin={id, ox:Math.round((ev.clientX-cr.left)/Math.max(1,cr.width)*100), oy:Math.round((ev.clientY-cr.top)/Math.max(1,cr.height)*100)}; }
   render(); focusCard(id);
 }
 function focusCard(id){ const el=document.querySelector('#feed [data-open="'+(window.CSS&&CSS.escape?CSS.escape(id):id)+'"]'); if(el){ try{ el.focus({preventScroll:true}); }catch(e){} const f=document.getElementById('feed'); const r=el.getBoundingClientRect(), fr=f.getBoundingClientRect(); if(r.bottom>fr.bottom) f.scrollTop+=r.bottom-fr.bottom+8; if(r.top<fr.top) f.scrollTop-=fr.top-r.top+8; } }
@@ -1119,6 +1154,20 @@ function rebindComposer(){ msg=document.getElementById('msg'); msg.addEventListe
 document.getElementById('bMenu').addEventListener('click', openMenu);
 document.getElementById('toastbar').addEventListener('click', ev=>{ if(!ev.target.closest('[data-undo]') || !undoFn) return; const f=undoFn; undoFn=null; const el=document.getElementById('toastbar'); el.hidden=true; el.classList.remove('withundo'); f(); toast('Desfeito.'); });
 
+/* ---------- aparência ---------- */
+const ACCENTS=[['','Padrão'],['#0F5E63','Petróleo'],['#3F3D9E','Índigo'],['#7A2846','Vinho'],['#5B3A70','Ameixa'],['#5A5A1E','Oliva']];
+function segOpts(key, cur, opts){ return '<div class="seg" role="group" aria-labelledby="lb_'+key+'" style="--n:'+opts.length+'">'+opts.map(o=>'<button type="button" data-'+key+'="'+o[0]+'" aria-pressed="'+(cur===o[0])+'">'+esc(o[1])+'</button>').join('')+'</div>'; }
+function openAparencia(keep){
+  let h=sheetHead('Aparência');
+  const est=[['caderno','Caderno de campo','Papel quadriculado, fichas com abas, serifa e números de livro-caixa.'],['silencio','Silêncio','Quase sem cor: só o que pede atenção aparece. Preto profundo no escuro.'],['classico','Clássico','O visual anterior, com fundos coloridos por tipo.']];
+  h+='<div class="field"><span class="flabel" id="lb_estilo">Estilo</span><div class="estilos" role="group" aria-labelledby="lb_estilo">'+est.map(e=>'<button type="button" class="estcard" data-estilo="'+e[0]+'" aria-pressed="'+(UI.estilo===e[0])+'"><span class="estprev est-'+e[0]+'"><i></i><i></i><i></i></span><span class="esttx"><b>'+esc(e[1])+'</b><span>'+esc(e[2])+'</span></span></button>').join('')+'</div></div>';
+  h+='<div class="field"><span class="flabel" id="lb_tema">Modo</span>'+segOpts('tema', UI.tema, [['auto','Automático'],['claro','Claro'],['escuro','Escuro']])+'</div>';
+  h+='<div class="field"><span class="flabel" id="lb_layout">Layout do feed</span>'+segOpts('layout', UI.layout, [['chat','Conversa'],['linha','Linha do tempo']])+'<span class="muted">'+(UI.layout==='linha'?'Os dias ficam na margem, com a marca de agora e os próximos compromissos e vencimentos abaixo dela.':'Os itens aparecem como mensagens, do mais antigo ao mais novo.')+'</span></div>';
+  h+='<div class="field"><span class="flabel" id="lb_exib">Itens</span>'+segOpts('exib', UI.exib, [['compacta','Compactos'],['expandida','Expandidos']])+'</div>';
+  h+='<div class="field"><span class="flabel" id="lb_acc">Cor de destaque (botões principais)</span><div class="accgrid" role="group" aria-labelledby="lb_acc">'+ACCENTS.map(a=>'<button type="button" data-accent="'+a[0]+'" aria-pressed="'+(UI.accent===a[0])+'" aria-label="'+esc(a[1])+'" style="background:'+(a[0]||'var(--strong)')+'">'+(UI.accent===a[0]?svg('check',18,3):'')+'</button>').join('')+'</div><span class="muted">As cores que indicam tipo e situação não mudam.</span></div>';
+  openSheet(h,'Aparência', keep);
+}
+
 /* ---------- lixeira ---------- */
 function openTrash(keep){
   const its=trashed();
@@ -1138,8 +1187,7 @@ function openMenu(){
   const acc=window.__account;
   h+='<div style="font-size:14px;line-height:1.5;background:var(--soft);border-radius:12px;padding:12px 14px">'+(S.mode==='db'?'<b>Sincronizado na nuvem.</b> Suas notas aparecem em qualquer aparelho em que você entrar com a sua conta.'+(acc?'<br><b>Conta:</b> '+esc(acc.email):''):'<b>Modo local:</b> as notas ficam só neste aparelho. Faça backups com frequência.')+'<br><b>Itens:</b> '+n+'</div>';
   if(acc) h+='<button type="button" class="btn" data-logout="1">Sair da conta</button>';
-  h+='<div class="field"><span class="flabel" id="lb_tema">Aparência</span><div class="seg" role="group" aria-labelledby="lb_tema" style="--n:3"><button type="button" data-tema="auto" aria-pressed="'+(UI.tema==='auto')+'">Automático</button><button type="button" data-tema="claro" aria-pressed="'+(UI.tema==='claro')+'">Claro</button><button type="button" data-tema="escuro" aria-pressed="'+(UI.tema==='escuro')+'">Escuro</button></div><span class="muted">'+(UI.tema==='auto'?'Segue o modo claro ou escuro do aparelho.':UI.tema==='escuro'?'Sempre escuro.':'Sempre claro.')+'</span></div>';
-  h+='<div class="field"><span class="flabel" id="lb_exib">Exibição dos itens</span><div class="seg" role="group" aria-labelledby="lb_exib" style="--n:2"><button type="button" data-exib="compacta" aria-pressed="'+(UI.exib==='compacta')+'">Compacta</button><button type="button" data-exib="expandida" aria-pressed="'+(UI.exib==='expandida')+'">Expandida</button></div><span class="muted">'+(UI.exib==='compacta'?'Os itens aparecem resumidos; toque para expandir.':'Os itens aparecem completos.')+'</span></div>';
+  h+='<button type="button" class="btn" data-aparencia="1" style="justify-content:space-between"><span style="display:inline-flex;align-items:center;gap:8px">'+svg('texto',16)+'Aparência</span><span class="muted">'+esc(({caderno:'Caderno de campo',silencio:'Silêncio',classico:'Clássico'})[UI.estilo])+' · '+(UI.layout==='linha'?'Linha do tempo':'Conversa')+'</span></button>';
   h+='<div class="grid2"><button type="button" class="btn" data-tagmgr2="1">'+svg('tag',16)+'Marcadores ('+S.tags.length+')</button><button type="button" class="btn" data-lixeira="1">'+svg('trash',16)+'Lixeira ('+trashed().length+')</button></div>';
   h+='<div class="muted" style="line-height:1.5"><b style="color:var(--ink)">Dicas:</b> toque num item para expandir; toque longo (ou o botão Editar) para editar. Na caixa de texto, *negrito*, _itálico_, ~riscado~ e linhas com “-” viram lista.</div>';
   h+='<div style="display:flex;flex-direction:column;gap:8px"><span class="flabel">Backup</span><button type="button" class="btn dark" data-exp="1">Exportar backup (arquivo .json)</button><label class="btn" for="fImport" style="cursor:pointer">Importar backup</label><input type="file" id="fImport" class="sr" accept="application/json,.json"><span class="muted">O backup guarda textos e dados. Imagens, áudios e documentos continuam no armazenamento do app.</span></div>';
