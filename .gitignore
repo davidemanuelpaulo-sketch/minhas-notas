@@ -3,3 +3,4 @@ node_modules/
 /android/
 .DS_Store
 /test/
+/dist-arquivo/
