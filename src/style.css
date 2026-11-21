@@ -613,8 +613,8 @@ body{background-image:var(--grid);background-attachment:fixed}
 .navseg{grid-template-columns:auto auto auto}
 .callist>.card{align-self:stretch;width:auto;max-width:none}
 @media (min-width:1360px){
-  body[data-view="cal"] .shell{grid-template-columns:268px minmax(0,1fr)}
-  body[data-view="cal"] .aside{display:none}
+  body[data-tela="cal"] .shell{grid-template-columns:268px minmax(0,1fr)}
+  body[data-tela="cal"] .aside{display:none}
 }
 /* abas: se adaptam ao espaço (telas estreitas e fonte grande do Android) */
 .navseg{display:flex;gap:4px;min-width:0;flex:1 1 auto;max-width:330px}

@@ -428,7 +428,7 @@ window.addEventListener('resize', ()=>requestAnimationFrame(fitTabs));
 if(document.fonts && document.fonts.ready) document.fonts.ready.then(fitTabs);
 function render(){
   const isViews=UI.view!=='feed';
-  document.body.dataset.view=UI.view;
+  document.body.dataset.tela=UI.view;
   requestAnimationFrame(fitTabs);
   [['tabNotas','feed'],['tabCal','cal'],['tabResumo','views']].forEach(([tid,v])=>{ const b=document.getElementById(tid); if(b){ b.setAttribute('aria-selected', UI.view===v); b.setAttribute('aria-pressed', UI.view===v); } });
   document.getElementById('bFilter').hidden=isViews; document.getElementById('bSearch').hidden=isViews; if(isViews) document.getElementById('searchWrap').hidden=true;
