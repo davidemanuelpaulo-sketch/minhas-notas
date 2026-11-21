@@ -1438,7 +1438,8 @@ function relogioSegs(evs){
 }
 function relogioHtml(iso, evs){
   const segs=relogioSegs(evs); const vence=evs.filter(e=>e.k==='apagar');
-  if(!segs.length && !vence.length) return '';
+  const isHoje0=iso===isoOf(today());
+  if(!segs.length && !vence.length && !isHoje0) return '';
   let a=6*60, z=22*60; segs.forEach(g=>{ a=Math.min(a, Math.floor(g.s/60)*60); z=Math.max(z, Math.min(24*60, Math.ceil(g.f/60)*60)); });
   const W=z-a; const pct=m=>((m-a)/W*100).toFixed(3)+'%'; const lanes=Math.max(1, ...segs.map(g=>g.lane+1));
   const isHoje=iso===isoOf(today());
@@ -1469,7 +1470,7 @@ function relogioTick(){
   if(cur && nx) t='Agora: '+cur.t+' · depois: '+nx.t+' às '+hmTxt(nx.s);
   else if(cur) t='Agora: '+cur.t+' · até '+hmTxt(cur.f);
   else if(nx) t='Próximo: '+nx.t+' às '+hmTxt(nx.s)+' ('+falta(nx.s)+')';
-  else t=segs.length?'Nada mais marcado para hoje':'Sem horários marcados hoje';
+  else t=segs.length?'Nada mais marcado para hoje':'Nenhum compromisso com horário hoje. Os que tiverem hora aparecem nesta faixa.';
   tx.textContent=t+vtxt;
 }
 setInterval(()=>{ if(UI.view==='cal' && !document.hidden) relogioTick(); }, 30000);
