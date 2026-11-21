@@ -1423,6 +1423,57 @@ function calEventos(ini, fim){ // ini/fim: Date (inclusive); devolve Map iso -> 
   });
   return M;
 }
+/* ---------- relógio do dia (faixa com a marcação de agora) ---------- */
+const hm=s=>{ const q=String(s||'').split(':').map(Number); return (q[0]||0)*60+(q[1]||0); };
+const hmTxt=m=>pad(Math.floor(m/60)%24)+':'+pad(m%60);
+function relogioSegs(evs){
+  const by=new Map();
+  evs.filter(e=>(e.k==='agenda'||e.k==='prev') && e.hr && !e.feito).forEach(e=>{ const key=e.i.id+'|'+e.k; if(!by.has(key)) by.set(key, []); by.get(key).push(e); });
+  const segs=[];
+  by.forEach(list=>{ list.sort((a,b)=>hm(a.hr)-hm(b.hr)); const crono=list.length>1 || !!list[0].etapa;
+    list.forEach((e,k)=>{ const s=hm(e.hr); let f=k<list.length-1 ? hm(list[k+1].hr) : s+60; if(f<=s) f=s+30; segs.push({s, f, e, k, crono}); }); });
+  segs.sort((a,b)=>a.s-b.s || b.f-a.f);
+  const lanes=[]; segs.forEach(g=>{ let l=lanes.findIndex(end=>end<=g.s); if(l<0){ l=lanes.length; lanes.push(0); } lanes[l]=g.f; g.lane=Math.min(l,2); });
+  return segs;
+}
+function relogioHtml(iso, evs){
+  const segs=relogioSegs(evs); const vence=evs.filter(e=>e.k==='apagar');
+  if(!segs.length && !vence.length) return '';
+  let a=6*60, z=22*60; segs.forEach(g=>{ a=Math.min(a, Math.floor(g.s/60)*60); z=Math.max(z, Math.min(24*60, Math.ceil(g.f/60)*60)); });
+  const W=z-a; const pct=m=>((m-a)/W*100).toFixed(3)+'%'; const lanes=Math.max(1, ...segs.map(g=>g.lane+1));
+  const isHoje=iso===isoOf(today());
+  let h='<div class="relogio'+(isHoje?' hoje':'')+'" id="relogio" data-a="'+a+'" data-z="'+z+'" data-iso="'+iso+'" style="--lanes:'+lanes+';--horas:'+(W/60)+'"><div class="rscroll" id="rscroll"><div class="rtrack">';
+  for(let m=Math.ceil(a/60)*60; m<=z; m+=60) h+='<span class="rtick'+(m%180?' leve':'')+'" style="left:'+pct(m)+'"><b>'+(m/60)+'h</b></span>';
+  segs.forEach(g=>{ const tone=g.crono?(g.k%3):0;
+    h+='<button type="button" class="rseg t'+tone+(g.e.k==='prev'?' prev':'')+'" data-clk="'+esc(g.e.i.id)+'" data-s="'+g.s+'" data-f="'+g.f+'" style="left:'+pct(g.s)+';width:calc('+((g.f-g.s)/W*100).toFixed(3)+'% - 2px);top:calc('+g.lane+' * (var(--lh) + 3px))" aria-label="'+esc(hmTxt(g.s)+' a '+hmTxt(g.f)+': '+g.e.titulo)+'"><span>'+esc(g.e.titulo)+'</span></button>'; });
+  if(vence.length) h+='<span class="rvence" title="'+esc('Vence hoje: '+vence.map(v=>v.titulo).join(', '))+'"></span>';
+  if(isHoje) h+='<span class="ragora" id="ragora" aria-hidden="true"></span>';
+  h+='</div></div><p class="rtexto" id="rtexto" aria-live="polite"></p></div>';
+  return h;
+}
+function relogioScroll(){ const r=document.getElementById('relogio'), sc=document.getElementById('rscroll'); if(!r||!sc||sc.scrollWidth<=sc.clientWidth) return;
+  const a=+r.dataset.a, z=+r.dataset.z; let alvo; if(r.dataset.iso===isoOf(today())){ const n=new Date(); alvo=n.getHours()*60+n.getMinutes(); } else { const f=r.querySelector('.rseg'); alvo=f?+f.dataset.s:a; }
+  sc.scrollLeft=Math.max(0, (alvo-a)/(z-a)*sc.scrollWidth - sc.clientWidth*0.3); }
+function relogioTick(){
+  const r=document.getElementById('relogio'); if(!r) return; const a=+r.dataset.a, z=+r.dataset.z; const hoje=r.dataset.iso===isoOf(today());
+  const n=new Date(); const now=n.getHours()*60+n.getMinutes()+n.getSeconds()/60;
+  const segs=[...r.querySelectorAll('.rseg')].map(b=>({b, s:+b.dataset.s, f:+b.dataset.f, t:b.textContent}));
+  segs.forEach(g=>{ g.b.classList.toggle('past', hoje && g.f<=now); g.b.classList.toggle('cur', hoje && g.s<=now && now<g.f); });
+  const ag=document.getElementById('ragora'); if(ag){ const vis=now>=a && now<=z; ag.hidden=!vis; ag.style.left=((now-a)/(z-a)*100).toFixed(3)+'%'; }
+  const tx=document.getElementById('rtexto'); if(!tx) return;
+  const vence=r.querySelector('.rvence'); const vtxt=vence?' · '+vence.title:'';
+  if(!hoje){ tx.textContent=(segs.length?segs.length+(segs.length===1?' horário marcado':' horários marcados')+', das '+hmTxt(Math.min(...segs.map(g=>g.s)))+' às '+hmTxt(Math.max(...segs.map(g=>g.f))):'Sem horários marcados')+vtxt; return; }
+  const cur=segs.filter(g=>g.s<=now && now<g.f).sort((x,y)=>y.s-x.s)[0]; const nx=segs.filter(g=>g.s>now).sort((x,y)=>x.s-y.s)[0];
+  const falta=m=>{ const d=Math.round(m-now); return d<60?'em '+d+' min':'em '+Math.floor(d/60)+' h'+(d%60?' '+(d%60)+' min':''); };
+  let t;
+  if(cur && nx) t='Agora: '+cur.t+' · depois: '+nx.t+' às '+hmTxt(nx.s);
+  else if(cur) t='Agora: '+cur.t+' · até '+hmTxt(cur.f);
+  else if(nx) t='Próximo: '+nx.t+' às '+hmTxt(nx.s)+' ('+falta(nx.s)+')';
+  else t=segs.length?'Nada mais marcado para hoje':'Sem horários marcados hoje';
+  tx.textContent=t+vtxt;
+}
+setInterval(()=>{ if(UI.view==='cal' && !document.hidden) relogioTick(); }, 30000);
+document.addEventListener('visibilitychange', ()=>{ if(!document.hidden && UI.view==='cal'){ const r=document.getElementById('relogio'); if(r && r.dataset.iso!==isoOf(today()) && UI.calSel===r.dataset.iso){} relogioTick(); } });
 function renderCal(){
   const el=document.getElementById('views'); const t=today(); const tIso=isoOf(t);
   if(!UI.calMes) UI.calMes={y:t.getFullYear(), m:t.getMonth()};
@@ -1447,14 +1498,20 @@ function renderCal(){
   // lista do dia
   const sd=parseIso(UI.calSel); const evs=(M.get(UI.calSel)||[]).slice().sort((a,b)=>String(a.hr||'99').localeCompare(String(b.hr||'99')));
   let L='<div class="calday" aria-live="polite"><div class="caldh"><h3>'+WDL[sd.getDay()]+', '+sd.getDate()+' de '+MESL[sd.getMonth()].toLowerCase()+(UI.calSel===tIso?' <em>hoje</em>':'')+'</h3><button type="button" class="btn" data-calnovo="'+UI.calSel+'">'+svg('plus',16)+'Novo compromisso</button></div>';
+  L+=relogioHtml(UI.calSel, evs);
   const reais=evs.filter(e=>e.k!=='prev'); const prev=evs.filter(e=>e.k==='prev'); const shown=new Set();
-  if(reais.length){ L+='<div class="callist">'; reais.forEach(e=>{ if(e.etapa) L+='<div class="caletapa">'+(e.hr?'<b>'+esc(e.hr)+'</b> ':'')+esc(e.titulo)+' <span class="muted">· etapa '+esc(e.etapa)+'</span></div>'; if(shown.has(e.i.id)) return; shown.add(e.i.id); L+=card(e.i); }); L+='</div>'; }
+  if(reais.length){ L+='<div class="callist">'; reais.forEach(e=>{ if(shown.has(e.i.id)) return; shown.add(e.i.id);
+      const ets=reais.filter(x=>x.i.id===e.i.id && x.etapa);
+      if(ets.length===1) L+='<div class="caletapa">'+(e.hr?'<b>'+esc(e.hr)+'</b> ':'')+esc(e.titulo)+' <span class="muted">· etapa '+esc(e.etapa)+'</span></div>';
+      else if(ets.length>1){ const hs=ets.map(x=>x.hr).filter(Boolean); L+='<div class="caletapa">'+ets.length+' etapas neste dia'+(hs.length?' <span class="muted">· '+esc(hs[0])+' a '+esc(hs[hs.length-1])+'</span>':'')+'</div>'; }
+      L+=card(e.i); }); L+='</div>'; }
   if(prev.length){ L+='<h4 class="calsub">Previsão</h4><div class="callist">'+prev.map(e=>'<button type="button" class="ghost calprev" data-goto="'+esc(e.i.id)+'"><span class="gic">'+svg('repeat',15)+'</span><span style="display:flex;flex-direction:column;min-width:0"><b>'+esc((e.hr?e.hr+' · ':'')+e.titulo)+'</b><span class="gsub">'+esc((e.valor!=null?fmtMoney(e.valor)+' · ':'')+'repete '+repLabel(e.i.dados.repetir))+'</span></span></button>').join('')+'</div>'; }
   const anot=sorted().filter(i=>isoOf(new Date(i.criado))===UI.calSel && !shown.has(i.id));
   if(anot.length){ L+='<h4 class="calsub">Anotado neste dia</h4><div class="callist">'+anot.map(i=>card(i)).join('')+'</div>'; }
   if(!reais.length && !prev.length && !anot.length) L+='<p class="muted calvazio">'+(sd<t?'Nada anotado nem marcado neste dia.':'Nada marcado para este dia.')+'</p>';
   L+='</div>';
   el.innerHTML='<div class="calwrap"><div class="calmain">'+g+'</div>'+L+'</div>';
+  relogioTick(); relogioScroll();
 }
 function calMove(dm){ let {y,m}=UI.calMes; m+=dm; if(m<0){m=11;y--;} if(m>11){m=0;y++;} UI.calMes={y,m}; const t=today(); UI.calSel=(t.getFullYear()===y&&t.getMonth()===m)?isoOf(t):isoOf(new Date(y,m,1)); render(); const h=document.querySelector('.calhead h2'); if(h) h.focus && 0; }
 (function(){ const v=document.getElementById('views'); let sx=null, sy=null;
@@ -1517,6 +1574,7 @@ document.getElementById('views').addEventListener('click', async ev=>{
     const cm=ev.target.closest('[data-calm]'); if(cm){ calMove(+cm.dataset.calm); return; }
     if(ev.target.closest('[data-calhoje]')){ const t=today(); UI.calMes={y:t.getFullYear(), m:t.getMonth()}; UI.calSel=isoOf(t); render(); return; }
     const cd=ev.target.closest('[data-cald]'); if(cd){ const q=parseIso(cd.dataset.cald); UI.calSel=cd.dataset.cald; if(q.getMonth()!==UI.calMes.m) UI.calMes={y:q.getFullYear(), m:q.getMonth()}; render(); const b=document.querySelector('[data-cald="'+cd.dataset.cald+'"]'); if(b) b.focus({preventScroll:true}); if(!(window.matchMedia&&matchMedia('(min-width:1024px)').matches)){ const l=document.querySelector('.calday'); if(l) try{ l.scrollIntoView({block:'nearest', behavior:'smooth'}); }catch(e){} } return; }
+    const ck=ev.target.closest('[data-clk]'); if(ck){ const id=ck.dataset.clk; if(UI.exib==='compacta') UI.open.add(id); render(); const c=document.querySelector('.calday [data-open="'+(window.CSS&&CSS.escape?CSS.escape(id):id)+'"]'); if(c){ try{ c.scrollIntoView({block:'center', behavior:'smooth'}); c.focus({preventScroll:true}); }catch(e){} } else if(ck.classList.contains('prev')){ UI.view='feed'; expandAndShow(id); } return; }
     const nv=ev.target.closest('[data-calnovo]'); if(nv){ openEditor(null, 'agenda', {data:nv.dataset.calnovo}, null, 'titulo'); return; }
     const gt=ev.target.closest('.calprev[data-goto]'); if(gt){ UI.view='feed'; expandAndShow(gt.dataset.goto); return; }
   }

@@ -628,3 +628,28 @@ body{background-image:var(--grid);background-attachment:fixed}
 .navseg.icons.tight button[aria-pressed="true"]{padding:0 6px}
 .navseg{flex:1 1 0;width:0}
 .navseg{margin-right:auto}
+
+/* ---------- relógio do dia ---------- */
+.relogio{--lh:26px;display:flex;flex-direction:column;gap:6px;padding:10px 10px 8px;border-radius:14px;background:var(--surface);box-shadow:inset 0 0 0 1px var(--line)}
+.rtrack{position:relative;height:calc(var(--lanes) * (var(--lh) + 3px) + 16px);margin:0 2px}
+.rtick{position:absolute;top:0;bottom:0;border-left:1px dashed var(--line2);pointer-events:none}
+.rtick b{position:absolute;bottom:-2px;left:3px;font-size:10px;font-weight:600;color:var(--muted);font-family:var(--f-mono,inherit);white-space:nowrap}
+.rseg{position:absolute;height:var(--lh);min-width:6px;border:0;border-radius:7px;padding:0 6px;display:flex;align-items:center;overflow:hidden;cursor:pointer;font:inherit;font-size:11.5px;font-weight:600;color:#fff;background:var(--tempo);transition:opacity .3s, box-shadow .3s}
+.rseg span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rseg.t1{background:color-mix(in srgb,var(--tempo) 72%, var(--surface))}
+.rseg.t2{background:color-mix(in srgb,var(--tempo) 52%, var(--surface));color:var(--ink)}
+.rseg.prev{background:transparent;color:var(--tempo);box-shadow:inset 0 0 0 1.5px var(--tempo);border-style:dashed}
+.rseg.past{opacity:.35}
+.rseg.cur{box-shadow:0 0 0 2px var(--surface),0 0 0 4px var(--tempo)}
+:root[data-theme="dark"] .rseg{color:#0E1624}
+:root[data-theme="dark"] .rseg.t2{color:var(--ink)}
+.rvence{position:absolute;left:-2px;top:-4px;width:10px;height:10px;border-radius:99px;background:var(--pagar);box-shadow:0 0 0 2px var(--surface)}
+.ragora{position:absolute;top:-6px;bottom:12px;width:2px;margin-left:-1px;background:var(--pagar);border-radius:2px;pointer-events:none;transition:left 1s linear}
+.ragora::before{content:"";position:absolute;top:-4px;left:-4px;width:10px;height:10px;border-radius:99px;background:var(--pagar)}
+.rtexto{margin:2px 2px 0;font-size:13.5px;line-height:1.4;color:var(--ink)}
+@media (prefers-reduced-motion:reduce){.ragora{transition:none}}
+.rscroll{overflow-x:auto;overflow-y:hidden;margin:0 -10px;padding:6px 10px 2px;scrollbar-width:thin;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain}
+.rtrack{width:max(100%, calc(var(--horas) * 56px));margin:0}
+.rtick.leve b{opacity:.6}
+.rtick.leve{border-left-style:dotted;opacity:.7}
+.rscroll{padding-top:10px}
