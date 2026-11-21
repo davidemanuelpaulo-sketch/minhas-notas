@@ -492,3 +492,36 @@ body{background-image:var(--grid);background-attachment:fixed}
 :root[data-estilo="caderno"] .ctxmenu{border-radius:6px 14px 14px 14px}
 :root[data-estilo="silencio"][data-theme="dark"] .ctxmenu{background:#151515}
 .feed.linha .cmore{margin-left:auto}
+
+/* ---------- cronograma ---------- */
+.crono{list-style:none;margin:4px 0 0;padding:0;display:flex;flex-direction:column;position:relative}
+.crono .cday{font-family:var(--f-mono,inherit);font-size:11px;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);margin:8px 0 2px 30px}
+.crono .cday:first-child{margin-top:0}
+.crono .et{display:grid;grid-template-columns:22px auto minmax(0,1fr);align-items:start;gap:8px;position:relative;padding:3px 0}
+.crono .et::before{content:"";position:absolute;left:10px;top:-3px;bottom:-3px;width:2px;background:var(--line2)}
+.crono .et:first-child::before,.crono .cday+.et::before{top:12px}
+.crono .et:last-child::before{bottom:calc(100% - 12px)}
+.etdot{position:relative;z-index:1;width:18px;height:18px;margin:1px 2px 0;border-radius:99px;border:2px solid var(--tempo,var(--accent));background:var(--surface);display:flex;align-items:center;justify-content:center;color:var(--surface);padding:0;cursor:pointer}
+.etdot::after{content:"";position:absolute;inset:-12px}
+.ethr{font-family:var(--f-mono,inherit);font-size:12.5px;font-weight:600;color:var(--ink);min-width:40px;padding-top:1px;font-variant-numeric:tabular-nums}
+.ettx{font-size:14px;line-height:1.35;color:var(--ink);padding-top:1px;border-radius:6px}
+.ettx em{font-style:normal;font-family:var(--f-mono,inherit);font-size:10.5px;letter-spacing:.05em;text-transform:uppercase;margin-left:8px;padding:1px 6px;border-radius:99px;background:var(--tempo,var(--accent));color:var(--surface);vertical-align:1px}
+.crono .et.past .ethr,.crono .et.past .ettx{color:var(--muted)}
+.crono .et.past .etdot{border-color:var(--line2);background:var(--soft)}
+.crono .et.feito .etdot{background:var(--tempo,var(--accent));border-color:var(--tempo,var(--accent))}
+.crono .et.feito .ettx{color:var(--muted);text-decoration:line-through}
+.crono .et.cur .etdot{background:var(--tempo,var(--accent));box-shadow:0 0 0 4px color-mix(in srgb,var(--tempo,var(--accent)) 22%,transparent)}
+.crono .et.cur .ettx{font-weight:600}
+.crono-ed{display:flex;flex-direction:column;gap:8px}
+.etrow{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr) auto;grid-template-areas:"d h x" "t t b";gap:6px;align-items:center;padding:8px;border:1px solid var(--line);border-radius:12px;background:var(--soft)}
+.etrow [data-ed]{grid-area:d}.etrow [data-eh]{grid-area:h}.etrow [data-et]{grid-area:t}.etrow [data-edel]{grid-area:x}.etrow .etbell{grid-area:b}
+.etrow:not(:has(.etbell)) [data-et]{grid-column:1 / -1}
+.etrow input{min-width:0;height:40px;padding:0 10px;border:1px solid var(--line2);border-radius:9px;background:var(--surface);color:var(--ink);font:inherit;font-size:15px}
+.etbell[aria-pressed="true"]{background:var(--strong);color:#fff}
+.ghostbtn{border-style:dashed;background:transparent}
+@media (min-width:700px){ .etrow{grid-template-columns:150px 110px minmax(0,1fr) auto auto;grid-template-areas:"d h t b x"} .etrow:not(:has(.etbell)) [data-et]{grid-column:auto} }
+.crono .cday{position:relative;margin:0;padding:8px 0 2px 30px}
+.crono .cday::before{content:"";position:absolute;left:10px;top:0;bottom:0;width:2px;background:var(--line2)}
+.crono .cday:first-child::before{top:14px}
+.crono .cday:first-child{padding-top:0}
+.crono .cday+.et::before{top:-3px}

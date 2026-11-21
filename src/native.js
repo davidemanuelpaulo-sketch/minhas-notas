@@ -81,6 +81,17 @@ function desired(items) {
       const when = new Date(ev.getTime() - off);
       if (when.getTime() > now) out.push({ id: hashId(it.id + ':a'), title: d.titulo || 'Compromisso', body: [fmt(ev), d.hora, d.local].filter(Boolean).join(' · '), at: when, itemId: it.id, kind: 'AGENDA' });
     }
+    if (it.tipo === 'agenda' && Array.isArray(d.etapas) && d.etapas.length && (d.avisoEtapas === 'todas' || d.avisoEtapas === 'escolher')) {
+      const off = d.aviso === '1h' ? 3600e3 : d.aviso === '1d' ? 86400e3 : 0;
+      const L = d.etapas.slice().sort((x, y) => String(x.data).localeCompare(String(y.data)) || String(x.hora || '99').localeCompare(String(y.hora || '99')));
+      L.forEach((e, k) => {
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(e.data || '') || e.feito) return;
+        if (d.avisoEtapas === 'escolher' && !e.avisar) return;
+        if (k === 0 && d.aviso) return; // o início já tem o aviso do compromisso
+        const ev = at(e.data, e.hora || '08:00'); const when = new Date(ev.getTime() - off);
+        if (when.getTime() > now) out.push({ id: hashId(it.id + ':e:' + (e.id || k)), title: (e.titulo || 'Etapa ' + (k + 1)), body: [(d.titulo || 'Compromisso'), 'etapa ' + (k + 1) + ' de ' + L.length, e.hora].filter(Boolean).join(' · '), at: when, itemId: it.id, kind: 'AGENDA' });
+      });
+    }
     if (it.tipo === 'despesa' && d.situacao !== 'pago' && /^\d{4}-\d{2}-\d{2}$/.test(d.vencimento || '')) {
       const day = at(d.vencimento, '09:00'); const before = new Date(day.getTime() - 86400e3);
       const valor = d.valor != null ? ' · ' + BRL.format(d.valor) : '';
