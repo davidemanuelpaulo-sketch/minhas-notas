@@ -4,3 +4,4 @@
 // NUNCA coloque aqui a chave "secret"/"service_role".
 export const SUPABASE_URL = 'https://twiwntpkpphmsxrapmvt.supabase.co';
 export const SUPABASE_KEY = 'sb_publishable_VlMnSB0FgL6enBNaRPaAzA_EL1oUne4';
+export const WEB_URL = 'https://davidemanuelpaulo-sketch.github.io/minhas-notas/';

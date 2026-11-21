@@ -36,6 +36,7 @@ const P = {
   mic:'<rect x="9" y="2" width="6" height="12" rx="3"/><path d="M19 10v1a7 7 0 0 1-14 0v-1M12 18v4"/>',
   stop:'<rect x="6" y="6" width="12" height="12" rx="2"/>',
   back:'<path d="M15 18l-6-6 6-6"/>',
+  minus:'<path d="M5 12h14"/>',
   copy:'<rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>',
   tag:'<path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><path d="M7 7h.01"/>',
   star:'<path d="M12 3l2.6 5.6 6.1.7-4.5 4.2 1.2 6L12 16.6 6.6 19.5l1.2-6L3.3 9.3l6.1-.7z"/>',
@@ -412,10 +413,11 @@ function scheduleRender(end){ if(end) wantEnd=true; if(rq) return; rq=true; requ
 function sorted(){ return Array.from(S.items.values()).filter(i=>T[i.tipo] && !i.excluido).sort((a,b)=>(a.criado||0)-(b.criado||0)); }
 function trashed(){ return Array.from(S.items.values()).filter(i=>T[i.tipo] && i.excluido).sort((a,b)=>b.excluido-a.excluido); }
 function searchText(it){ const d=it.dados||{}; let s=JSON.stringify(Object.assign({}, d, {html:undefined}))+' '+(d.html?plainOf(d.html):'')+' '+typeLabel(it)+' '+itemTags(it).map(t=>t.nome).join(' '); if(d.valor!=null) s+=' '+fmtMoney(d.valor)+' '+String(d.valor).replace('.',','); return s.toLowerCase(); }
+function semAcento(x){ return String(x||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase(); }
 function matches(it){
   if(UI.filter!=='tudo' && it.tipo!==UI.filter) return false;
   if(UI.tag && (it.tags||[]).indexOf(UI.tag)<0) return false;
-  if(UI.q && searchText(it).indexOf(UI.q.toLowerCase())<0) return false;
+  if(UI.q && semAcento(searchText(it)).indexOf(semAcento(UI.q))<0) return false;
   return true;
 }
 function render(){
@@ -534,7 +536,7 @@ function fullCard(it){
       break; }
     case 'imagem': { const as=assetsOf(d); inner=(as.length?gallery(it.id, as, d.legenda):'<div class="media" style="height:120px;display:flex;align-items:center;justify-content:center;color:var(--muted)">Sem imagem</div>')+head(it, as.length>1?'Imagens · '+as.length:'Imagem')+(d.legenda?'<span class="csub" data-f="legenda">'+esc(d.legenda)+'</span>':''); break; }
     case 'audio': inner=head(it)+(isLegacy(d.asset)?LEGACY:d.asset?'<audio controls preload="none" src="'+esc(blobUrl(d.asset))+'" data-stop="1"></audio>':'<span class="csub">Sem arquivo de áudio</span>')+(d.legenda?'<span class="csub" data-f="legenda">'+esc(d.legenda)+'</span>':''); break;
-    case 'documento': inner=head(it)+'<span class="ctitle" data-f="nome">'+esc(d.nome||'Documento')+'</span>'+(d.tamanhoArq?'<span class="csub">'+esc(d.tamanhoArq)+'</span>':'')+(d.legenda?'<span class="csub" data-f="legenda">'+esc(d.legenda)+'</span>':'')+(isLegacy(d.asset)?LEGACY:d.asset?'<a class="btn" data-stop="1" href="'+esc(blobUrl(d.asset))+'" target="_blank" rel="noopener">Abrir arquivo</a>':''); break;
+    case 'documento': inner=head(it)+'<span class="ctitle" data-f="nome">'+esc(d.nome||'Documento')+'</span>'+(d.tamanhoArq?'<span class="csub">'+esc(d.tamanhoArq)+'</span>':'')+(d.legenda?'<span class="csub" data-f="legenda">'+esc(d.legenda)+'</span>':'')+(isLegacy(d.asset)?LEGACY:d.asset?(isPdf(d)&&window.__pdfjs?'<div class="docacts"><button type="button" class="btn dark" data-pdf="'+id+'">'+svg('documento',16)+'Abrir PDF</button><a class="btn" data-stop="1" href="'+esc(blobUrl(d.asset))+'" target="_blank" rel="noopener" aria-label="Abrir em outro app" title="Abrir em outro app">'+svg('download',16)+'</a></div>':'<a class="btn" data-stop="1" href="'+esc(blobUrl(d.asset))+'" target="_blank" rel="noopener">Abrir arquivo</a>'):''); break;
     case 'link': { const u=safeUrl(d.url); inner=head(it)+(u?'<a class="linkbox" data-stop="1" href="'+esc(u)+'" target="_blank" rel="noopener"><span class="ctitle" style="color:var(--ink)">'+esc(d.titulo||u.replace(/^https?:\/\//,''))+'</span><span style="font-size:13px;color:var(--tempo);word-break:break-all">'+esc(u.replace(/^https?:\/\//,'').slice(0,60))+'</span></a>':'<span class="csub" data-f="url">'+esc(d.url||'Sem endereço')+'</span>'); break; }
     case 'agenda': { const dt=parseIso(d.data); const fimD=parseIso(fimAgenda(d)); const past=fimD&&fimD<today(); inner=head(it)+'<div class="row" style="gap:12px">'+(dt?'<div class="cal"><b>'+MES[dt.getMonth()]+'</b><span>'+dt.getDate()+'</span></div>':'')+'<div style="display:flex;flex-direction:column;gap:2px;min-width:0"><span class="ctitle" data-f="titulo">'+esc(d.titulo||'Compromisso')+'</span><span class="csub" data-f="'+(etapasOf(d).length?'etapas':'data')+'">'+esc(agendaQuando(d))+'</span>'+(d.obs?'<span class="csub" data-f="obs">'+esc(d.obs)+'</span>':'')+(past?'<span class="muted">Já passou</span>':'')+'</div></div>'+cronoHtml(it)+(d.aviso?'<span class="bell" data-f="aviso">'+svg('bell',14)+'Aviso: '+esc(optLabel('aviso',d.aviso).toLowerCase())+'</span>':'')+(d.repetir?'<span class="repmark" data-f="repetir">'+svg('repeat',13)+'Repete '+repLabel(d.repetir)+'</span>':''); { const l=d.local?findLinked('local', d.local):null; if(l) inner+='<div class="links">'+linkChip(l, 'Local: '+(l.dados.nome||''))+'</div>'; } break; }
     case 'despesa': {
@@ -703,7 +705,7 @@ async function handleFiles(files, legenda, fromComposer){
     const up=await upload(f, true); if(!up) continue;
     const tipo=/^audio\//.test(f.type)?'audio':'documento';
     const d={asset:up.id, legenda:usedLegenda?'':legenda}; usedLegenda=true;
-    if(tipo==='documento'){ d.nome=f.name; d.tamanhoArq=sizeTxt(f.size); }
+    if(tipo==='documento'){ d.nome=f.name; d.tamanhoArq=sizeTxt(f.size); if(f.type) d.mime=f.type; }
     put(newItem(tipo,d));
   }
   if(usedLegenda && fromComposer) resetComposer(); else if(usedLegenda) scheduleRender(true);
@@ -718,8 +720,19 @@ async function uploadMany(files){
   toast(ids.length+(ids.length===1?' imagem salva':' imagens salvas')+(fail?' · '+fail+' com erro':'')+'.');
   return ids;
 }
+async function reduzir(f){
+  try{
+    if(!/^image\/(jpeg|png|webp)$/.test(f.type) || f.size<700*1024 || typeof createImageBitmap!=='function') return f;
+    const bm=await createImageBitmap(f, {imageOrientation:'from-image'}); const MAX=2048; const k=Math.min(1, MAX/Math.max(bm.width,bm.height));
+    const w=Math.round(bm.width*k), h=Math.round(bm.height*k); const cv=document.createElement('canvas'); cv.width=w; cv.height=h; const cx=cv.getContext('2d');
+    cx.fillStyle='#fff'; cx.fillRect(0,0,w,h); cx.drawImage(bm,0,0,w,h); if(bm.close) bm.close();
+    const blob=await new Promise(r=>cv.toBlob(r,'image/jpeg',0.85)); if(!blob || blob.size>=f.size) return f;
+    return new File([blob], (f.name||'imagem').replace(/\.[^.]+$/,'')+'.jpg', {type:'image/jpeg', lastModified:f.lastModified||Date.now()});
+  }catch(e){ return f; }
+}
 async function upload(f, quiet){
   if(!S.assets){ toast(S.mode==='db'?'Envio de arquivos indisponível agora.':'Para guardar arquivos, configure a nuvem (Supabase).'); return null; }
+  f=await reduzir(f);
   if(f.size>20*1048576){ toast('“'+f.name+'” tem mais de 20 MB.'); return null; }
   if(!quiet) toast('Enviando arquivo…');
   try{ const r=await S.assets.upload(f); if(!quiet) toast('Arquivo salvo.'); return r; }catch(e){ toast('Não foi possível enviar “'+f.name+'”.'); return null; }
@@ -1089,6 +1102,8 @@ layer.addEventListener('click', ev=>{
   if(ds.purge){ remove(ds.purge); toast('Excluído de vez.'); openTrash(true); return; }
   if(ds.purgeall){ trashed().forEach(i=>remove(i.id)); toast('Lixeira esvaziada.'); openTrash(true); return; }
   if(ds.aparencia){ openAparencia(); return; }
+  if(ds.ajuda){ openAjuda(); return; }
+  if(ds.trocasenha){ openTrocaSenha(); return; }
   if(ds.tema){ UI.tema=ds.tema; savePref(); applyTheme(); openAparencia(true); scheduleRender(); return; }
   if(ds.exib){ UI.exib=ds.exib; savePref(); UI.open.clear(); openAparencia(true); scheduleRender(); return; }
   if(ds.estilo){ UI.estilo=ds.estilo; savePref(); applyTheme(); openAparencia(true); scheduleRender(); return; }
@@ -1099,22 +1114,141 @@ layer.addEventListener('click', ev=>{
 /* ---------- ações no feed ---------- */
 /* ---------- visualizador de imagens ---------- */
 let viewer=null;
-function openViewer(id, i){ const it=S.items.get(id); if(!it) return; const as=assetsOf(it.dados); if(!as.length) return; viewer={id, as, i:Math.max(0,Math.min(i,as.length-1)), legenda:it.dados.legenda||''}; lastFocus=document.activeElement; drawViewer(); }
+/* ---------- visualizador: imagens com zoom e PDF ---------- */
+function openViewer(id, i){ const it=S.items.get(id); if(!it) return; const as=assetsOf(it.dados); if(!as.length) return; if(!viewer) lastFocus=document.activeElement; viewer={kind:'img', id, as, i:Math.max(0,Math.min(i,as.length-1)), legenda:it.dados.legenda||''}; drawViewer(); }
 function drawViewer(){
-  const v=viewer; const n=v.as.length;
-  layer.innerHTML='<div class="viewer" role="dialog" aria-modal="true" aria-label="Imagem '+(v.i+1)+' de '+n+'"><div class="vtop"><span>'+(v.i+1)+' de '+n+'</span><button type="button" class="vbtn" data-vclose="1" aria-label="Fechar">'+svg('x',22)+'</button></div><div class="vstage"><img id="vimg" alt="'+esc(v.legenda||'Imagem')+'" src="'+esc(blobUrl(v.as[v.i]))+'"></div>'+(n>1?'<button type="button" class="vbtn vprev" data-vgo="-1" aria-label="Imagem anterior">'+svg('back',26)+'</button><button type="button" class="vbtn vnext" data-vgo="1" aria-label="Próxima imagem" style="transform:scaleX(-1)">'+svg('back',26)+'</button>':'')+(v.legenda?'<div class="vcap">'+esc(v.legenda)+'</div>':'')+'</div>';
+  const v=viewer; const n=v.as.length; v.z={s:1,x:0,y:0};
+  layer.innerHTML='<div class="viewer" role="dialog" aria-modal="true" aria-label="Imagem '+(v.i+1)+' de '+n+'"><div class="vtop"><span>'+(n>1?(v.i+1)+' de '+n:'Imagem')+'</span><span class="vtools"><button type="button" class="vbtn sm" data-vz="-1" aria-label="Diminuir zoom">'+svg('minus',20)+'</button><button type="button" class="vbtn sm" data-vz="1" aria-label="Aumentar zoom">'+svg('plus',20)+'</button><button type="button" class="vbtn" data-vclose="1" aria-label="Fechar">'+svg('x',22)+'</button></span></div><div class="vstage" id="vstage"><img id="vimg" draggable="false" alt="'+esc(v.legenda||'Imagem')+'" src="'+esc(blobUrl(v.as[v.i]))+'"></div>'+(n>1?'<button type="button" class="vbtn vprev" data-vgo="-1" aria-label="Imagem anterior">'+svg('back',26)+'</button><button type="button" class="vbtn vnext" data-vgo="1" aria-label="Próxima imagem" style="transform:scaleX(-1)">'+svg('back',26)+'</button>':'')+(v.legenda?'<div class="vcap">'+esc(v.legenda)+'</div>':'')+'<div class="vhint" aria-hidden="true">Dois toques ou pinça para ampliar</div></div>';
   const c=layer.querySelector('[data-vclose]'); if(c) c.focus();
+  bindZoom();
 }
-function viewerGo(d){ if(!viewer) return; const n=viewer.as.length; viewer.i=(viewer.i+d+n)%n; drawViewer(); }
-function closeViewer(){ viewer=null; layer.innerHTML=''; if(lastFocus&&lastFocus.focus) try{lastFocus.focus();}catch(e){} }
-layer.addEventListener('click', ev=>{ if(!viewer) return; if(viewer.swiped){ viewer.swiped=false; return; } const g=ev.target.closest('[data-vgo]'); if(g){ viewerGo(+g.dataset.vgo); return; } if(ev.target.closest('[data-vclose]') || ev.target.classList.contains('vstage')) closeViewer(); });
-document.addEventListener('keydown', ev=>{ if(!viewer) return; if(ev.key==='ArrowRight') viewerGo(1); else if(ev.key==='ArrowLeft') viewerGo(-1); else if(ev.key==='Escape') closeViewer(); });
-let swX=null;
-layer.addEventListener('pointerdown', ev=>{ if(viewer && ev.target.closest('.vstage')) swX=ev.clientX; });
-layer.addEventListener('pointerup', ev=>{ if(viewer && swX!=null){ const dx=ev.clientX-swX; swX=null; if(Math.abs(dx)>50){ viewer.swiped=true; viewerGo(dx<0?1:-1); setTimeout(()=>{ if(viewer) viewer.swiped=false; },400); } } });
+function viewerGo(d){ if(!viewer || viewer.kind!=='img') return; const n=viewer.as.length; if(n<2) return; viewer.i=(viewer.i+d+n)%n; drawViewer(); }
+function closeViewer(){ if(viewer && viewer.kind==='pdf' && viewer.doc) try{ viewer.doc.destroy(); }catch(e){} viewer=null; layer.innerHTML=''; if(lastFocus&&lastFocus.focus) try{lastFocus.focus();}catch(e){} }
+function zApply(anim){ const v=viewer; if(!v||!v.z) return; const img=document.getElementById('vimg'); const st=document.getElementById('vstage'); if(!img||!st) return;
+  const z=v.z; const W=st.clientWidth, H=st.clientHeight, w=img.offsetWidth*z.s, h=img.offsetHeight*z.s;
+  const mx=Math.max(0,(w-W)/2), my=Math.max(0,(h-H)/2); z.x=Math.max(-mx,Math.min(mx,z.x)); z.y=Math.max(-my,Math.min(my,z.y));
+  img.style.transition=anim?'transform .2s ease':'none'; img.style.transform='translate('+z.x+'px,'+z.y+'px) scale('+z.s+')';
+  const vw=layer.querySelector('.viewer'); if(vw) vw.classList.toggle('zoomed', z.s>1.01); }
+function zTo(s, px, py, anim){ const v=viewer; if(!v||!v.z) return; const z=v.z; const ns=Math.max(1,Math.min(6,s)); const k=ns/z.s; z.x=px-(px-z.x)*k; z.y=py-(py-z.y)*k; z.s=ns; if(ns===1){ z.x=0; z.y=0; } zApply(anim); }
+function bindZoom(){
+  const st=document.getElementById('vstage'); if(!st) return; const pts=new Map(); let g=null, lastTap=0, lastTapXY=null;
+  const rel=(x,y)=>{ const r=st.getBoundingClientRect(); return [x-r.left-r.width/2, y-r.top-r.height/2]; };
+  st.addEventListener('pointerdown', ev=>{ if(!viewer) return; try{ st.setPointerCapture(ev.pointerId); }catch(e){} pts.set(ev.pointerId,[ev.clientX,ev.clientY]); const z=viewer.z;
+    if(pts.size===2){ const [a,b]=[...pts.values()]; g={pinch:true, d0:Math.hypot(a[0]-b[0],a[1]-b[1])||1, s0:z.s, x0:z.x, y0:z.y, m0:rel((a[0]+b[0])/2,(a[1]+b[1])/2), moved:true}; }
+    else if(pts.size===1) g={pinch:false, sx:ev.clientX, sy:ev.clientY, x0:z.x, y0:z.y, moved:false, t:Date.now()}; });
+  st.addEventListener('pointermove', ev=>{ if(!viewer||!g||!pts.has(ev.pointerId)) return; pts.set(ev.pointerId,[ev.clientX,ev.clientY]); const z=viewer.z;
+    if(g.pinch && pts.size>=2){ const [a,b]=[...pts.values()]; const d=Math.hypot(a[0]-b[0],a[1]-b[1]); const s=Math.max(.8,Math.min(6,g.s0*d/g.d0)); const m=rel((a[0]+b[0])/2,(a[1]+b[1])/2); z.x=m[0]-(g.m0[0]-g.x0)*s/g.s0; z.y=m[1]-(g.m0[1]-g.y0)*s/g.s0; z.s=s; const img=document.getElementById('vimg'); if(img){ img.style.transition='none'; img.style.transform='translate('+z.x+'px,'+z.y+'px) scale('+z.s+')'; } return; }
+    const dx=ev.clientX-g.sx, dy=ev.clientY-g.sy; if(Math.hypot(dx,dy)>8) g.moved=true;
+    if(z.s>1.01){ z.x=g.x0+dx; z.y=g.y0+dy; zApply(false); }
+    else { const img=document.getElementById('vimg'); if(img && g.moved){ img.style.transition='none'; img.style.transform=Math.abs(dy)>Math.abs(dx)&&dy>0?'translateY('+dy+'px)':'translateX('+dx*0.6+'px)'; img.style.opacity=Math.abs(dy)>Math.abs(dx)&&dy>0?String(Math.max(.4,1-dy/400)):'1'; } } });
+  const end=ev=>{ if(!viewer||!pts.has(ev.pointerId)) return; pts.delete(ev.pointerId); const z=viewer.z; if(!g) return;
+    if(g.pinch){ if(pts.size<2){ if(z.s<1.02) zTo(1,0,0,true); else zApply(true); g=null; if(pts.size===1){ const p=[...pts.values()][0]; g={pinch:false, sx:p[0], sy:p[1], x0:z.x, y0:z.y, moved:true}; } } return; }
+    const dx=ev.clientX-g.sx, dy=ev.clientY-g.sy; const img=document.getElementById('vimg');
+    if(!g.moved && ev.type==='pointerup'){ const now=Date.now(); const p=rel(ev.clientX,ev.clientY);
+      if(now-lastTap<320 && lastTapXY && Math.hypot(lastTapXY[0]-p[0],lastTapXY[1]-p[1])<40){ lastTap=0; if(z.s>1.01) zTo(1,0,0,true); else zTo(2.5,p[0],p[1],true); } else { lastTap=now; lastTapXY=p; } g=null; return; }
+    if(z.s<=1.01){ if(img){ img.style.transition='transform .2s ease, opacity .2s'; img.style.transform=''; img.style.opacity='1'; }
+      if(dy>110 && Math.abs(dy)>Math.abs(dx)){ closeViewer(); }
+      else if(Math.abs(dx)>60 && Math.abs(dx)>Math.abs(dy)){ viewer.swiped=true; viewerGo(dx<0?1:-1); setTimeout(()=>{ if(viewer) viewer.swiped=false; },400); } }
+    g=null; };
+  st.addEventListener('pointerup', end); st.addEventListener('pointercancel', end);
+  st.addEventListener('wheel', ev=>{ if(!viewer) return; ev.preventDefault(); const p=rel(ev.clientX,ev.clientY); zTo(viewer.z.s*Math.exp(-ev.deltaY*0.0022), p[0], p[1], false); }, {passive:false});
+  const img=document.getElementById('vimg'); if(img) img.addEventListener('load', ()=>zApply(false));
+}
+layer.addEventListener('click', ev=>{ if(!viewer) return; if(viewer.swiped){ viewer.swiped=false; return; }
+  const g=ev.target.closest('[data-vgo]'); if(g){ viewerGo(+g.dataset.vgo); return; }
+  const vz=ev.target.closest('[data-vz]'); if(vz){ if(viewer.kind==='pdf') pdfZoom(viewer.zoom*(+vz.dataset.vz>0?1.25:0.8)); else zTo(viewer.z.s*(+vz.dataset.vz>0?1.5:1/1.5),0,0,true); return; }
+  const ex=ev.target.closest('[data-vext]'); if(ex){ return; }
+  if(ev.target.closest('[data-vclose]')) closeViewer(); });
+document.addEventListener('keydown', ev=>{ if(!viewer) return;
+  if(ev.key==='Escape'){ ev.preventDefault(); closeViewer(); return; }
+  if(ev.key==='+'||ev.key==='='){ ev.preventDefault(); if(viewer.kind==='pdf') pdfZoom(viewer.zoom*1.25); else zTo(viewer.z.s*1.5,0,0,true); return; }
+  if(ev.key==='-'){ ev.preventDefault(); if(viewer.kind==='pdf') pdfZoom(viewer.zoom*0.8); else zTo(viewer.z.s/1.5,0,0,true); return; }
+  if(ev.key==='0'){ if(viewer.kind==='pdf') pdfZoom(1); else zTo(1,0,0,true); return; }
+  if(viewer.kind==='img' && viewer.z.s<=1.01){ if(ev.key==='ArrowRight') viewerGo(1); else if(ev.key==='ArrowLeft') viewerGo(-1); } });
+
+/* PDF dentro do app (pdf.js) */
+function isPdf(d){ return !!d && (d.mime==='application/pdf' || /\.pdf$/i.test(d.nome||'') || /\.pdf$/i.test(String(d.asset||''))); }
+async function openPdf(id){
+  const it=S.items.get(id); if(!it||!it.dados.asset) return; const d=it.dados; const url=blobUrl(d.asset);
+  if(!window.__pdfjs){ window.open(url,'_blank','noopener'); return; }
+  if(!viewer) lastFocus=document.activeElement;
+  viewer={kind:'pdf', id, url, nome:d.nome||'Documento', zoom:1, pages:[], doc:null, rendered:new Map(), cur:1};
+  layer.innerHTML='<div class="viewer pdfv" role="dialog" aria-modal="true" aria-label="'+esc(viewer.nome)+'"><div class="vtop"><span class="vtitle"><b>'+esc(viewer.nome)+'</b><span id="pdfpg">Abrindo…</span></span><span class="vtools"><button type="button" class="vbtn sm" data-vz="-1" aria-label="Diminuir zoom">'+svg('minus',20)+'</button><button type="button" class="vbtn sm" data-vz="1" aria-label="Aumentar zoom">'+svg('plus',20)+'</button><a class="vbtn sm" data-vext="1" href="'+esc(url)+'" target="_blank" rel="noopener" aria-label="Abrir em outro app" title="Abrir em outro app">'+svg('download',19)+'</a><button type="button" class="vbtn" data-vclose="1" aria-label="Fechar">'+svg('x',22)+'</button></span></div><div class="pdfstage" id="pdfstage" tabindex="0"><div class="pdfpages" id="pdfpages"><div class="pdfmsg">Carregando o PDF…</div></div></div></div>';
+  const c=layer.querySelector('[data-vclose]'); if(c) c.focus();
+  const me=viewer;
+  try{
+    const lib=await window.__pdfjs();
+    const buf=await (await fetch(url)).arrayBuffer(); if(viewer!==me) return;
+    const doc=await lib.getDocument({data:new Uint8Array(buf), isEvalSupported:false}).promise; if(viewer!==me){ doc.destroy(); return; }
+    me.doc=doc; const n=doc.numPages;
+    for(let k=1;k<=n;k++){ const pg=await doc.getPage(k); if(viewer!==me) return; const vp=pg.getViewport({scale:1}); me.pages.push({pg, w:vp.width, h:vp.height}); }
+    pdfLayout(); bindPdf();
+  }catch(e){ console.error(e); const box=document.getElementById('pdfpages'); if(box && viewer===me) box.innerHTML='<div class="pdfmsg">Não foi possível abrir este PDF aqui.<br><a class="btn" href="'+esc(url)+'" target="_blank" rel="noopener" style="margin-top:12px">Abrir em outro app</a></div>'; }
+}
+function pdfLayout(keep){
+  const v=viewer; if(!v||v.kind!=='pdf') return; const st=document.getElementById('pdfstage'), box=document.getElementById('pdfpages'); if(!st||!box) return;
+  const W=Math.min(st.clientWidth-16, 1000)*v.zoom; v.rendered.clear(); if(v.io) v.io.disconnect();
+  box.innerHTML=v.pages.map((p,k)=>'<div class="pdfpg" data-pg="'+(k+1)+'" style="width:'+Math.round(W)+'px;height:'+Math.round(W*p.h/p.w)+'px" aria-label="Página '+(k+1)+'"></div>').join('');
+  v.io=new IntersectionObserver(es=>es.forEach(e=>{ if(e.isIntersecting) pdfRender(+e.target.dataset.pg); }), {root:st, rootMargin:'120% 0px'});
+  box.querySelectorAll('.pdfpg').forEach(el=>v.io.observe(el)); pdfIndicador();
+}
+async function pdfRender(k){
+  const v=viewer; if(!v||v.kind!=='pdf'||v.rendered.has(k)) return; v.rendered.set(k,true);
+  const el=document.querySelector('.pdfpg[data-pg="'+k+'"]'); const p=v.pages[k-1]; if(!el||!p) return;
+  const cssW=el.clientWidth; const dpr=Math.min(window.devicePixelRatio||1, 3); let scale=cssW/p.w*dpr; if(p.w*scale>4096) scale=4096/p.w;
+  const vp=p.pg.getViewport({scale}); const cv=document.createElement('canvas'); cv.width=Math.floor(vp.width); cv.height=Math.floor(vp.height);
+  try{ await p.pg.render({canvasContext:cv.getContext('2d'), viewport:vp}).promise; if(viewer!==v) return; el.innerHTML=''; el.appendChild(cv); }catch(e){ v.rendered.delete(k); }
+}
+function pdfIndicador(){ const v=viewer; if(!v||v.kind!=='pdf') return; const st=document.getElementById('pdfstage'); const lab=document.getElementById('pdfpg'); if(!st||!lab) return;
+  const mid=st.scrollTop+st.clientHeight/3; let cur=1; st.querySelectorAll('.pdfpg').forEach(el=>{ if(el.offsetTop<=mid) cur=+el.dataset.pg; }); v.cur=cur;
+  lab.textContent='Página '+cur+' de '+v.pages.length+(Math.abs(v.zoom-1)>.01?' · '+Math.round(v.zoom*100)+'%':''); }
+function pdfZoom(z, cx, cy){
+  const v=viewer; if(!v||v.kind!=='pdf'||!v.pages.length) return; const st=document.getElementById('pdfstage'); if(!st) return;
+  const nz=Math.max(1,Math.min(4,z)); if(Math.abs(nz-v.zoom)<.001) return; const k=nz/v.zoom;
+  const ox=cx==null?st.clientWidth/2:cx, oy=cy==null?st.clientHeight/2:cy; const fx=st.scrollLeft+ox, fy=st.scrollTop+oy;
+  v.zoom=nz; pdfLayout(); st.scrollLeft=fx*k-ox; st.scrollTop=fy*k-oy; pdfIndicador();
+}
+function bindPdf(){
+  const st=document.getElementById('pdfstage'), box=document.getElementById('pdfpages'); if(!st) return; let t=null;
+  st.addEventListener('scroll', ()=>pdfIndicador(), {passive:true});
+  const rel=(x,y)=>{ const r=st.getBoundingClientRect(); return [x-r.left, y-r.top]; };
+  st.addEventListener('touchstart', ev=>{ if(ev.touches.length===2){ const a=ev.touches[0], b=ev.touches[1]; t={d0:Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY)||1, m:rel((a.clientX+b.clientX)/2,(a.clientY+b.clientY)/2), r:1}; box.style.transformOrigin=(st.scrollLeft+t.m[0])+'px '+(st.scrollTop+t.m[1])+'px'; } }, {passive:true});
+  st.addEventListener('touchmove', ev=>{ if(t && ev.touches.length===2){ ev.preventDefault(); const a=ev.touches[0], b=ev.touches[1]; t.r=Math.max(1/viewer.zoom, Math.min(4/viewer.zoom, Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY)/t.d0)); box.style.transform='scale('+t.r+')'; } }, {passive:false});
+  const fim=()=>{ if(!t) return; const r=t.r, m=t.m; t=null; box.style.transform=''; if(Math.abs(r-1)>.03) pdfZoom(viewer.zoom*r, m[0], m[1]); };
+  st.addEventListener('touchend', ev=>{ if(ev.touches.length<2) fim(); }); st.addEventListener('touchcancel', fim);
+  st.addEventListener('wheel', ev=>{ if(!ev.ctrlKey) return; ev.preventDefault(); const p=rel(ev.clientX,ev.clientY); pdfZoom(viewer.zoom*Math.exp(-ev.deltaY*0.01), p[0], p[1]); }, {passive:false});
+  let lastTap=0; st.addEventListener('click', ev=>{ const now=Date.now(); if(now-lastTap<320){ lastTap=0; const p=rel(ev.clientX,ev.clientY); pdfZoom(viewer.zoom>1.05?1:2, p[0], p[1]); } else lastTap=now; });
+  let rz=null; window.addEventListener('resize', ()=>{ clearTimeout(rz); rz=setTimeout(()=>{ if(viewer&&viewer.kind==='pdf'&&viewer.pages.length) pdfLayout(); },200); });
+  try{ st.focus({preventScroll:true}); }catch(e){}
+}
+
+/* ---------- Como usar ---------- */
+function openAjuda(){
+  const mouse=window.matchMedia && matchMedia('(hover:hover) and (pointer:fine)').matches;
+  const sec=(t,b)=>'<section class="ajsec"><h3>'+t+'</h3>'+b+'</section>';
+  const ex=t=>'<code class="ajex">'+esc(t).replace(/\n/g,'<br>')+'</code>';
+  let h=sheetHead('Como usar');
+  h+=sec('Anotar','<p>Escreva como numa conversa. O app percebe o tipo e sugere o card certo; se preferir, toque em enviar para guardar como texto.</p>'+ex('pagar 180 ao Seu Zé dia 25')+ex('reunião de pais sexta 19h')+ex('Feira:\n- arroz\n- feijão')+'<p>Use <b>+</b> para escolher o tipo e o clipe para enviar fotos, áudios e arquivos. Com a caixa vazia, o botão de enviar vira microfone: toque para gravar e de novo para parar.</p>');
+  h+=sec('Cards',(mouse?'<p><b>Clique</b> num card para abrir. <b>Clique numa informação</b> para editá-la. <b>Botão direito</b> ou <b>⋯</b> abre: fixar, editar tudo, marcadores, copiar, apagar.</p>':'<p><b>Toque</b> num card para abrir. <b>Toque numa informação</b> para editá-la. <b>Segure</b> o card para: fixar, editar tudo, marcadores, copiar, apagar.</p><p>Deslize um card fechado para o lado para a ação rápida (pagar, concluir item).</p>')+'<p>Para recolher, toque no topo do card ou fora dele.</p>');
+  h+=sec('Cronograma','<p>Um compromisso pode ter etapas. Escreva o título na primeira linha e uma etapa por linha, com hora ou data:</p>'+ex('Aula de campo sexta\n7h saída da escola\n12h almoço\n15h retorno')+'<p>Toque na bolinha para marcar a etapa como feita. Ao segurar o card, “Duplicar…” reaproveita o cronograma em outra data.</p>');
+  h+=sec('Imagens e PDF','<p>Toque numa imagem para ver em tela cheia. Amplie com <b>dois toques</b> ou com a <b>pinça</b>; deslize para o lado para passar e para baixo para fechar. PDFs abrem dentro do app, também com zoom.</p>');
+  h+=sec('Encontrar','<p>A lupa busca em tudo, com ou sem acento. O filtro mostra um tipo ou um marcador por vez. <b>Resumo</b> mostra o mês: contas, gastos, próximos compromissos e tarefas.</p>');
+  h+=sec('Na caixa de texto','<p>*negrito*, _itálico_, ~riscado~ e linhas com “-” viram lista.</p>');
+  h+=sec('Aparência e backup','<p>Em <b>Menu › Aparência</b>: estilo, modo escuro, Conversa ou Linha do tempo e cor de destaque. O backup em arquivo fica no Menu.</p>');
+  openSheet(h,'Como usar');
+}
+function openTrocaSenha(){
+  let h=sheetHead('Trocar senha');
+  h+='<div class="field"><label for="f_ns">Nova senha</label><input id="f_ns" type="password" autocomplete="new-password" minlength="6"></div><div class="field"><label for="f_ns2">Repita a nova senha</label><input id="f_ns2" type="password" autocomplete="new-password" minlength="6"></div><p class="muted" id="f_nserr" role="alert" style="margin:0"></p><button type="button" class="btn dark" data-nsok="1">Salvar nova senha</button>';
+  openSheet(h,'Trocar senha'); setTimeout(()=>{ const f=document.getElementById('f_ns'); if(f) f.focus(); },60);
+}
+layer.addEventListener('click', async ev=>{ if(!ev.target.closest('[data-nsok]')) return; const a=document.getElementById('f_ns').value, b=document.getElementById('f_ns2').value, er=document.getElementById('f_nserr');
+  if(a.length<6){ er.textContent='A senha precisa ter pelo menos 6 caracteres.'; return; } if(a!==b){ er.textContent='As duas senhas não são iguais.'; return; }
+  try{ await window.__account.changePassword(a); closeSheet(); toast('Senha alterada.'); }catch(e){ er.textContent='Não foi possível trocar: '+(e&&e.message||e); } });
 
 function onFeedClick(ev){
   const vw=ev.target.closest('[data-view]'); if(vw){ ev.stopPropagation(); openViewer(vw.dataset.view, +vw.dataset.i||0); return; }
+  const pf=ev.target.closest('[data-pdf]'); if(pf){ ev.stopPropagation(); openPdf(pf.dataset.pdf); return; }
   if(ev.target.closest('[data-stop]')) return;
   const a=ev.target.closest('[data-act]');
   if(a){ ev.stopPropagation(); const it=S.items.get(a.dataset.id); if(!it) return; const n=clone(it);
@@ -1360,10 +1494,10 @@ function openMenu(){
   let h=sheetHead('Menu');
   const acc=window.__account;
   h+='<div style="font-size:14px;line-height:1.5;background:var(--soft);border-radius:12px;padding:12px 14px">'+(S.mode==='db'?'<b>Sincronizado na nuvem.</b> Suas notas aparecem em qualquer aparelho em que você entrar com a sua conta.'+(acc?'<br><b>Conta:</b> '+esc(acc.email):''):'<b>Modo local:</b> as notas ficam só neste aparelho. Faça backups com frequência.')+'<br><b>Itens:</b> '+n+'</div>';
-  if(acc) h+='<button type="button" class="btn" data-logout="1">Sair da conta</button>';
+  if(acc) h+='<div class="grid2">'+(acc.changePassword?'<button type="button" class="btn" data-trocasenha="1">Trocar senha</button>':'')+'<button type="button" class="btn" data-logout="1">Sair da conta</button></div>';
+  h+='<button type="button" class="btn" data-ajuda="1">'+svg('texto',16)+'Como usar</button>';
   h+='<button type="button" class="btn" data-aparencia="1" style="justify-content:space-between"><span style="display:inline-flex;align-items:center;gap:8px">'+svg('texto',16)+'Aparência</span><span class="muted">'+esc(({caderno:'Caderno de campo',silencio:'Silêncio',classico:'Clássico'})[UI.estilo])+' · '+(UI.layout==='linha'?'Linha do tempo':'Conversa')+'</span></button>';
   h+='<div class="grid2"><button type="button" class="btn" data-tagmgr2="1">'+svg('tag',16)+'Marcadores ('+S.tags.length+')</button><button type="button" class="btn" data-lixeira="1">'+svg('trash',16)+'Lixeira ('+trashed().length+')</button></div>';
-  h+='<div class="muted" style="line-height:1.5"><b style="color:var(--ink)">Dicas:</b> toque num item para expandir; toque longo (ou o botão Editar) para editar. Na caixa de texto, *negrito*, _itálico_, ~riscado~ e linhas com “-” viram lista.</div>';
   h+='<div style="display:flex;flex-direction:column;gap:8px"><span class="flabel">Backup</span><button type="button" class="btn dark" data-exp="1">Exportar backup (arquivo .json)</button><label class="btn" for="fImport" style="cursor:pointer">Importar backup</label><input type="file" id="fImport" class="sr" accept="application/json,.json"><span class="muted">O backup guarda textos e dados. Imagens, áudios e documentos continuam no armazenamento do app.</span></div>';
   h+='<div id="bkArea"></div>';
   h+='<div class="muted" style="line-height:1.5"><b style="color:var(--ink)">No app Android:</b> avisos de agenda e vencimentos chegam como notificação, e você pode enviar conteúdo de outros apps pelo menu Compartilhar. Na versão web, veja compromissos e vencimentos em <b>Resumo</b>.</div>';

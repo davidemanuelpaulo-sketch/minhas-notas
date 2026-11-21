@@ -16,10 +16,11 @@
     <img src="./icon-192.png" alt="" width="64" height="64" style="border-radius:16px">
     <h1 style="font-size:24px">Minhas notas</h1>
     <p class="muted" id="authMsg" style="margin:0;text-align:center;line-height:1.45">Entre com a sua conta para ver suas notas em qualquer aparelho.</p>
-    <div class="field" style="width:100%"><label for="authEmail">E-mail</label><input id="authEmail" type="email" autocomplete="email" required></div>
-    <div class="field" style="width:100%"><label for="authPass">Senha</label><input id="authPass" type="password" autocomplete="current-password" minlength="6" required></div>
+    <div class="field" style="width:100%" id="authEmailBox"><label for="authEmail">E-mail</label><input id="authEmail" type="email" autocomplete="email" required></div>
+    <div class="field" style="width:100%" id="authPassBox"><label for="authPass" id="authPassLbl">Senha</label><input id="authPass" type="password" autocomplete="current-password" minlength="6" required></div>
     <button type="submit" class="btn dark" id="authGo" style="width:100%">Entrar</button>
     <button type="button" class="btn" id="authToggle" style="width:100%">Criar conta</button>
+    <button type="button" class="linkbtn" id="authForgot">Esqueci minha senha</button>
     <p class="muted" id="authErr" role="alert" style="margin:0;color:#A8231B;text-align:center"></p>
   </form>
 </div>
