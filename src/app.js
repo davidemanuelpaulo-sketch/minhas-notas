@@ -499,7 +499,8 @@ function renderActive(){
   if(UI.tag && !tagById(UI.tag)) UI.tag=null;
   const n=activeCount(); const bf=document.getElementById('bFilter');
   bf.setAttribute('aria-pressed', n?'true':'false'); bf.setAttribute('aria-label', n?'Filtrar ('+n+' ativo'+(n>1?'s':'')+')':'Filtrar por tipo ou marcador');
-  bf.innerHTML=svg('filter',19)+(n?'<span class="badge">'+n+'</span>':'');
+  bf.innerHTML=svg('filter',18)+'<span>Filtrar</span>'+(n?'<span class="badge">'+n+'</span>':'');
+  const bs=document.getElementById('bSearch'); const nb=n+(UI.q?1:0); bs.innerHTML=svg('search',20)+(nb?'<span class="badge">'+nb+'</span>':''); bs.setAttribute('aria-label', 'Buscar e filtrar'+(nb?' ('+nb+' ativo'+(nb>1?'s':'')+')':''));
   const el=document.getElementById('active');
   if(!n || UI.view!=='feed'){ el.hidden=true; el.innerHTML=''; return; }
   const total=sorted().filter(matches).length;
@@ -1482,9 +1483,10 @@ function renderCal(){
   if(!UI.calSel || !(parseIso(UI.calSel)>=start && parseIso(UI.calSel)<=end)) UI.calSel = (t.getFullYear()===y && t.getMonth()===m) ? tIso : isoOf(first);
   const M=calEventos(start, end);
   const desk=window.matchMedia && matchMedia('(min-width:1024px)').matches;
+  const semana=!desk && !!UI.calSemana; const selD=parseIso(UI.calSel); const wSel=Math.floor(Math.round((selD-start)/864e5)/7);
   let g='<div class="calhead"><button type="button" class="iconbtn" data-calm="-1" aria-label="Mês anterior">'+svg('back',18)+'</button><h2 aria-live="polite">'+MESL[m]+' <span>'+y+'</span></h2><button type="button" class="iconbtn" data-calm="1" aria-label="Próximo mês" style="transform:scaleX(-1)">'+svg('back',18)+'</button>'+((t.getFullYear()!==y||t.getMonth()!==m||UI.calSel!==tIso)?'<button type="button" class="btn calhoje" data-calhoje="1">Hoje</button>':'')+'</div>';
   g+='<div class="calgrid" id="calgrid" role="grid" aria-label="'+MESL[m]+' de '+y+'"><div class="calwd" role="row">'+['D','S','T','Q','Q','S','S'].map((x,k)=>'<span role="columnheader" aria-label="'+WDL[k]+'">'+x+'</span>').join('')+'</div>';
-  for(let w=0; w<6; w++){ g+='<div class="calrow" role="row">';
+  for(let w=0; w<6; w++){ if(semana && w!==wSel) continue; g+='<div class="calrow" role="row">';
     for(let k=0;k<7;k++){ const d=new Date(start); d.setDate(start.getDate()+w*7+k); const iso=isoOf(d); const evs=M.get(iso)||[];
       const kinds=new Set(evs.map(e=>e.k)); const out=d.getMonth()!==m;
       const dots=['agenda','apagar','pago','prev'].filter(x=>kinds.has(x)).map(x=>'<i class="cd-'+x+'"></i>').join('');
@@ -1495,7 +1497,9 @@ function renderCal(){
       g+='<button type="button" role="gridcell" class="cday'+(out?' out':'')+(iso===tIso?' hoje':'')+(iso===UI.calSel?' sel':'')+'" data-cald="'+iso+'" aria-selected="'+(iso===UI.calSel)+'" aria-label="'+esc(lab)+'">'+inner+'</button>'; }
     g+='</div>'; }
   g+='</div>';
-  g+='<div class="callegend" aria-hidden="true"><span><i class="cd-agenda"></i>Compromisso</span><span><i class="cd-apagar"></i>A pagar</span><span><i class="cd-pago"></i>Pago</span><span><i class="cd-prev"></i>Previsão</span></div>';
+  if(!desk) g+='<button type="button" class="calalca" data-calsem="'+(semana?'0':'1')+'" aria-label="'+(semana?'Mostrar o mês inteiro':'Mostrar só a semana')+'" aria-expanded="'+(!semana)+'"><span></span>'+(semana?'Mostrar o mês':'')+'</button>';
+  if(!semana) g+='<div class="callegend" aria-hidden="true"><span><i class="cd-agenda"></i>Compromisso</span><span><i class="cd-apagar"></i>A pagar</span><span><i class="cd-pago"></i>Pago</span><span><i class="cd-prev"></i>Previsão</span></div>';
+  if(semana) g=g.replace('class="calgrid"','class="calgrid semana"');
   // lista do dia
   const sd=parseIso(UI.calSel); const evs=(M.get(UI.calSel)||[]).slice().sort((a,b)=>String(a.hr||'99').localeCompare(String(b.hr||'99')));
   let L='<div class="calday" aria-live="polite"><div class="caldh"><h3>'+WDL[sd.getDay()]+', '+sd.getDate()+' de '+MESL[sd.getMonth()].toLowerCase()+(UI.calSel===tIso?' <em>hoje</em>':'')+'</h3><button type="button" class="btn" data-calnovo="'+UI.calSel+'">'+svg('plus',16)+'Novo compromisso</button></div>';
@@ -1514,8 +1518,10 @@ function renderCal(){
   el.innerHTML='<div class="calwrap"><div class="calmain">'+g+'</div>'+L+'</div>';
   relogioTick(); relogioScroll();
 }
-function calMove(dm){ let {y,m}=UI.calMes; m+=dm; if(m<0){m=11;y--;} if(m>11){m=0;y++;} UI.calMes={y,m}; const t=today(); UI.calSel=(t.getFullYear()===y&&t.getMonth()===m)?isoOf(t):isoOf(new Date(y,m,1)); render(); const h=document.querySelector('.calhead h2'); if(h) h.focus && 0; }
+function calMoveSemana(dd){ const nd=addDays(UI.calSel, dd*7); const q=parseIso(nd); UI.calSel=nd; UI.calMes={y:q.getFullYear(), m:q.getMonth()}; render(); }
+function calMove(dm){ if(UI.calSemana && !(window.matchMedia&&matchMedia('(min-width:1024px)').matches)){ calMoveSemana(dm); return; } let {y,m}=UI.calMes; m+=dm; if(m<0){m=11;y--;} if(m>11){m=0;y++;} UI.calMes={y,m}; const t=today(); UI.calSel=(t.getFullYear()===y&&t.getMonth()===m)?isoOf(t):isoOf(new Date(y,m,1)); render(); const h=document.querySelector('.calhead h2'); if(h) h.focus && 0; }
 (function(){ const v=document.getElementById('views'); let sx=null, sy=null;
+  v.addEventListener('scroll', ()=>{ if(UI.view!=='cal' || UI.calSemana || (window.matchMedia&&matchMedia('(min-width:1024px)').matches)) return; if(v.scrollTop>48){ UI.calSemana=true; render(); v.scrollTop=0; } }, {passive:true});
   v.addEventListener('pointerdown', ev=>{ if(UI.view!=='cal' || !ev.target.closest('#calgrid')) return; sx=ev.clientX; sy=ev.clientY; });
   v.addEventListener('pointerup', ev=>{ if(sx==null) return; const dx=ev.clientX-sx, dy=ev.clientY-sy; sx=null; if(Math.abs(dx)>60 && Math.abs(dx)>Math.abs(dy)*1.5){ UI.calSwiped=Date.now(); calMove(dx<0?1:-1); } });
   v.addEventListener('keydown', ev=>{ if(UI.view!=='cal') return; const c=ev.target.closest('[data-cald]'); if(!c) return; const mv={ArrowLeft:-1,ArrowRight:1,ArrowUp:-7,ArrowDown:7}[ev.key]; if(!mv) return; ev.preventDefault();
@@ -1573,8 +1579,9 @@ document.getElementById('views').addEventListener('click', async ev=>{
   if(UI.view==='cal'){
     if(UI.calSwiped && Date.now()-UI.calSwiped<400) return;
     const cm=ev.target.closest('[data-calm]'); if(cm){ calMove(+cm.dataset.calm); return; }
+    const cs=ev.target.closest('[data-calsem]'); if(cs){ UI.calSemana=cs.dataset.calsem==='1'; render(); return; }
     if(ev.target.closest('[data-calhoje]')){ const t=today(); UI.calMes={y:t.getFullYear(), m:t.getMonth()}; UI.calSel=isoOf(t); render(); return; }
-    const cd=ev.target.closest('[data-cald]'); if(cd){ const q=parseIso(cd.dataset.cald); UI.calSel=cd.dataset.cald; if(q.getMonth()!==UI.calMes.m) UI.calMes={y:q.getFullYear(), m:q.getMonth()}; render(); const b=document.querySelector('[data-cald="'+cd.dataset.cald+'"]'); if(b) b.focus({preventScroll:true}); if(!(window.matchMedia&&matchMedia('(min-width:1024px)').matches)){ const l=document.querySelector('.calday'); if(l) try{ l.scrollIntoView({block:'nearest', behavior:'smooth'}); }catch(e){} } return; }
+    const cd=ev.target.closest('[data-cald]'); if(cd){ const q=parseIso(cd.dataset.cald); UI.calSel=cd.dataset.cald; if(!(window.matchMedia&&matchMedia('(min-width:1024px)').matches)){ UI.calSemana=true; document.getElementById('views').scrollTop=0; } if(q.getMonth()!==UI.calMes.m) UI.calMes={y:q.getFullYear(), m:q.getMonth()}; render(); const b=document.querySelector('[data-cald="'+cd.dataset.cald+'"]'); if(b) b.focus({preventScroll:true}); if(!(window.matchMedia&&matchMedia('(min-width:1024px)').matches)){ const l=document.querySelector('.calday'); if(l) try{ l.scrollIntoView({block:'nearest', behavior:'smooth'}); }catch(e){} } return; }
     const ck=ev.target.closest('[data-clk]'); if(ck){ const id=ck.dataset.clk; if(UI.exib==='compacta') UI.open.add(id); render(); const c=document.querySelector('.calday [data-open="'+(window.CSS&&CSS.escape?CSS.escape(id):id)+'"]'); if(c){ try{ c.scrollIntoView({block:'center', behavior:'smooth'}); c.focus({preventScroll:true}); }catch(e){} } else if(ck.classList.contains('prev')){ UI.view='feed'; expandAndShow(id); } return; }
     const nv=ev.target.closest('[data-calnovo]'); if(nv){ openEditor(null, 'agenda', {data:nv.dataset.calnovo}, null, 'titulo'); return; }
     const gt=ev.target.closest('.calprev[data-goto]'); if(gt){ UI.view='feed'; expandAndShow(gt.dataset.goto); return; }
@@ -1662,7 +1669,7 @@ async function importBackup(f){
 }
 
 /* ---------- ícones fixos ---------- */
-document.getElementById('bSearch').innerHTML=svg('search',20);
+document.getElementById('bSearch').innerHTML=svg('search',20); document.getElementById('bSearch').style.position='relative';
 
 document.getElementById('bMenu').innerHTML=svg('menu',20);
 function paintComposerIcons(){ document.getElementById('bPlus').innerHTML=svg('plus',22); document.getElementById('lAttach').innerHTML=svg('clip',20); const b=document.getElementById('bSend'); b.dataset.mode=''; updateSendBtn(); }

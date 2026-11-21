@@ -1,0 +1,13 @@
+import '@fontsource-variable/inter';
+import '@fontsource-variable/fraunces';
+import '@fontsource/ibm-plex-mono/400.css';
+import '@fontsource/ibm-plex-mono/600.css';
+import '/src/style.css';
+import { makeCloud } from '/src/cloud.js';
+import { setupNative } from '/src/native.js';
+import { fakeSb } from '/testes/fake.js';
+setupNative();
+window.claude = makeCloud(fakeSb(), {id:'u1', email:'david@exemplo.com'}, async ({filename,data})=>{ window.__saved={filename,data}; });
+window.__account={email:'david@exemplo.com', signOut(){}};
+window.__pdfjs=()=>import('/src/pdf.js').then(m=>m.default);
+await import('/src/app.js');

@@ -1,0 +1,26 @@
+name: Manter a nuvem acordada
+
+# O Supabase pausa projetos gratuitos sem uso por cerca de uma semana.
+# Esta tarefa faz uma consulta simples todo dia para mantê-lo ativo.
+on:
+  schedule:
+    - cron: '17 11 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  cutucar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Consultar o banco
+        run: |
+          URL=$(grep -o "https://[a-z0-9]*\.supabase\.co" src/config.js | head -1)
+          KEY=$(grep -o "sb_publishable_[A-Za-z0-9_-]*" src/config.js | head -1)
+          code=$(curl -s -o /dev/null -w "%{http_code}" "$URL/rest/v1/itens?select=id&limit=1" -H "apikey: $KEY" -H "Authorization: Bearer $KEY")
+          echo "Resposta do banco: $code"
+          code2=$(curl -s -o /dev/null -w "%{http_code}" "$URL/auth/v1/health" -H "apikey: $KEY")
+          echo "Resposta da autenticação: $code2"
+          if [ "$code2" != "200" ]; then echo "::warning::A nuvem respondeu $code2. Se o projeto estiver pausado, reative-o no painel do Supabase."; fi

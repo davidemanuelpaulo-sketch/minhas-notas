@@ -653,3 +653,18 @@ body{background-image:var(--grid);background-attachment:fixed}
 .rtick.leve b{opacity:.6}
 .rtick.leve{border-left-style:dotted;opacity:.7}
 .rscroll{padding-top:10px}
+
+/* calendário em semana (celular) */
+.calgrid.semana .calrow{animation:none}
+.calalca{display:flex;flex-direction:column;align-items:center;gap:4px;width:100%;border:0;background:transparent;color:var(--muted);font:inherit;font-size:12.5px;font-weight:600;padding:6px 0 2px;cursor:pointer}
+.calalca span{display:block;width:36px;height:4px;border-radius:99px;background:var(--line2)}
+.calalca:hover span,.calalca:focus-visible span{background:var(--muted)}
+/* busca com filtro */
+.srow{display:flex;gap:8px;align-items:center}
+.srow .search{flex:1 1 auto;min-width:0}
+.sfiltro{position:relative;flex:0 0 auto;height:44px;padding:0 12px;gap:6px;display:inline-flex;align-items:center}
+.sfiltro[aria-pressed="true"]{background:var(--strong);color:var(--surface);border-color:var(--strong)}
+#bSearch .badge,.sfiltro .badge{position:absolute;top:-4px;right:-4px}
+.sfiltro[aria-pressed="true"] .badge{display:none}
+/* detalhes */
+.callist .card::before{display:none !important}
