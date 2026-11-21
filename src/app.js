@@ -420,9 +420,16 @@ function matches(it){
   if(UI.q && semAcento(searchText(it)).indexOf(semAcento(UI.q))<0) return false;
   return true;
 }
+/* abas: com texto quando cabe; senão, só ícones (menos a aba atual) */
+function fitTabs(){ const nav=document.querySelector('.navseg'); if(!nav) return; nav.classList.remove('icons','tight');
+  const over=()=>[...nav.querySelectorAll('.tl')].some(t=>t.offsetParent && t.scrollWidth>t.clientWidth+1);
+  if(over()){ nav.classList.add('icons'); if(over()) nav.classList.add('tight'); } }
+window.addEventListener('resize', ()=>requestAnimationFrame(fitTabs));
+if(document.fonts && document.fonts.ready) document.fonts.ready.then(fitTabs);
 function render(){
   const isViews=UI.view!=='feed';
   document.body.dataset.view=UI.view;
+  requestAnimationFrame(fitTabs);
   [['tabNotas','feed'],['tabCal','cal'],['tabResumo','views']].forEach(([tid,v])=>{ const b=document.getElementById(tid); if(b){ b.setAttribute('aria-selected', UI.view===v); b.setAttribute('aria-pressed', UI.view===v); } });
   document.getElementById('bFilter').hidden=isViews; document.getElementById('bSearch').hidden=isViews; if(isViews) document.getElementById('searchWrap').hidden=true;
   const feed=document.getElementById('feed'), views=document.getElementById('views');

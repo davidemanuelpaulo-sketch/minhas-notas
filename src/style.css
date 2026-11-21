@@ -616,3 +616,15 @@ body{background-image:var(--grid);background-attachment:fixed}
   body[data-view="cal"] .shell{grid-template-columns:268px minmax(0,1fr)}
   body[data-view="cal"] .aside{display:none}
 }
+/* abas: se adaptam ao espaço (telas estreitas e fonte grande do Android) */
+.navseg{display:flex;gap:4px;min-width:0;flex:1 1 auto;max-width:330px}
+.navseg button{flex:1 1 auto;min-width:0;display:flex;align-items:center;justify-content:center;gap:6px;padding:0 8px;white-space:nowrap;overflow:hidden}
+.navseg button svg{flex:0 0 auto;display:none}
+.navseg button .tl{overflow:hidden;text-overflow:ellipsis}
+.navseg.icons button svg{display:block}
+.navseg.icons button[aria-pressed="false"]{flex:0 0 40px;padding:0}
+.navseg.icons button[aria-pressed="false"] .tl{display:none}
+.navseg.icons.tight button[aria-pressed="true"] svg{display:none}
+.navseg.icons.tight button[aria-pressed="true"]{padding:0 6px}
+.navseg{flex:1 1 0;width:0}
+.navseg{margin-right:auto}
