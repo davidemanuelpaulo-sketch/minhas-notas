@@ -235,6 +235,8 @@ function cronoState(d){
   L.forEach((e,i)=>{ const at=etAt(e); if(!at) return; const started = e.hora ? at<=now : at<=t; if(started) cur=i; else if(nxt<0) nxt=i; });
   const last=L[L.length-1]; let over=false;
   if(last){ const at=etAt(last); if(at){ over = last.hora ? (now-at>2*3600e3) : (at<t); } }
+  if(cur>=0 && L[cur].fim){ const fe=etAt(Object.assign({}, L[cur], {hora:L[cur].fim})); if(fe && now>=fe) cur=-1; }
+  if(last && last.fim){ const fe=etAt(Object.assign({}, last, {hora:last.fim})); if(fe) over = now>=fe; }
   if(over) cur=-1;
   const sameDay=L.length>0 && L.every(e=>e.data===L[0].data);
   const feitas=L.filter((e,i)=>e.feito || (cur>=0 ? i<cur : (over || (nxt>=0 && i<nxt)))).length;
@@ -266,7 +268,7 @@ function cronoTexto(d, whats){
 /* pontos no tempo de um compromisso (ele próprio ou cada etapa) */
 function agendaPontos(i){ const d=i.dados||{}; const L=sortEtapas(etapasOf(d));
   if(!L.length) return [{ds:d.data, hr:d.hora||'', titulo:d.titulo||'Compromisso', sub:''}];
-  return L.map((e,k)=>({ds:e.data, hr:e.hora||'', titulo:e.titulo||('Etapa '+(k+1)), sub:(d.titulo||'Compromisso')+' · etapa '+(k+1)+' de '+L.length, feito:e.feito})); }
+  return L.map((e,k)=>({ds:e.data, hr:e.hora||'', titulo:e.titulo||('Etapa '+(k+1)), sub:(d.titulo||'Compromisso')+' · etapa '+(k+1)+' de '+L.length, feito:e.feito, fim:e.fim||''})); }
 /* mensagem com várias linhas de horário/data vira compromisso com cronograma */
 function detectCrono(lines){
   if(lines.length<3) return null;
@@ -843,8 +845,8 @@ function cronoEditor(d){
   const L=etapasOf(d);
   if(!L.length) return '<button type="button" class="btn ghostbtn" data-eadd="1">'+svg('plus',16)+'Adicionar etapas (cronograma)</button>';
   const esc2=esc; const mode=d.avisoEtapas||'inicio';
-  let h='<div class="field crono-ed" id="f_etapas"><span class="flabel" id="lb_etapas">Cronograma · '+L.length+(L.length===1?' etapa':' etapas')+'</span><p class="muted" style="margin:-2px 0 2px;font-size:12.5px">A data e a hora do compromisso seguem a primeira etapa.</p>';
-  L.forEach((x,i)=>{ h+='<div class="etrow" role="group" aria-label="Etapa '+(i+1)+'"><input type="date" data-ed="'+i+'" aria-label="Data da etapa '+(i+1)+'" value="'+esc2(x.data||'')+'"><input type="time" data-eh="'+i+'" aria-label="Hora da etapa '+(i+1)+'" value="'+esc2(x.hora||'')+'"><input type="text" data-et="'+i+'" aria-label="O que acontece na etapa '+(i+1)+'" placeholder="O que acontece" value="'+esc2(x.titulo||'')+'">'+(mode==='escolher'?'<button type="button" class="iconbtn etbell" data-eav="'+i+'" aria-pressed="'+(x.avisar?'true':'false')+'" aria-label="Avisar nesta etapa">'+svg('bell',16)+'</button>':'')+'<button type="button" class="iconbtn" data-edel="'+i+'" aria-label="Remover etapa '+(i+1)+'">'+svg('x',16)+'</button></div>'; });
+  let h='<div class="field crono-ed" id="f_etapas"><span class="flabel" id="lb_etapas">Cronograma · '+L.length+(L.length===1?' etapa':' etapas')+'</span><p class="muted" style="margin:-2px 0 2px;font-size:12.5px">Cada etapa: data, início e fim (o fim é opcional). A data e a hora do compromisso seguem a primeira etapa.</p>';
+  L.forEach((x,i)=>{ h+='<div class="etrow" role="group" aria-label="Etapa '+(i+1)+'"><input type="date" data-ed="'+i+'" aria-label="Data da etapa '+(i+1)+'" value="'+esc2(x.data||'')+'"><input type="time" data-eh="'+i+'" aria-label="Início da etapa '+(i+1)+'" value="'+esc2(x.hora||'')+'"><input type="time" data-ef="'+i+'" aria-label="Fim da etapa '+(i+1)+' (opcional)" title="Fim (opcional)" value="'+esc2(x.fim||'')+'"><input type="text" data-et="'+i+'" aria-label="O que acontece na etapa '+(i+1)+'" placeholder="O que acontece" value="'+esc2(x.titulo||'')+'">'+(mode==='escolher'?'<button type="button" class="iconbtn etbell" data-eav="'+i+'" aria-pressed="'+(x.avisar?'true':'false')+'" aria-label="Avisar nesta etapa">'+svg('bell',16)+'</button>':'')+'<button type="button" class="iconbtn" data-edel="'+i+'" aria-label="Remover etapa '+(i+1)+'">'+svg('x',16)+'</button></div>'; });
   h+='<button type="button" class="btn" data-eadd="1">'+svg('plus',16)+'Adicionar etapa</button>';
   h+='<div class="field" style="margin-top:4px"><label for="f_avisoEtapas">Avisos das etapas</label><select id="f_avisoEtapas" data-k="avisoEtapas">'+OPT.avisoEtapas.map(o=>'<option value="'+o[0]+'"'+(o[0]===mode?' selected':'')+'>'+esc2(o[1])+'</option>').join('')+'</select></div>';
   return h+'</div>';
@@ -854,6 +856,7 @@ function readForm(){
   sh.querySelectorAll('[data-k]').forEach(inp=>{ const k=inp.dataset.k; let v=inp.value; if(inp.dataset.kind==='money') v=parseMoney(v); else if(typeof v==='string') v=v.replace(/\s+$/,''); if(k==='url') v=String(v||'').trim(); edit.dados[k]=v; });
   sh.querySelectorAll('[data-ed]').forEach(inp=>{ const x=etapasOf(edit.dados)[+inp.dataset.ed]; if(x) x.data=inp.value; });
   sh.querySelectorAll('[data-eh]').forEach(inp=>{ const x=etapasOf(edit.dados)[+inp.dataset.eh]; if(x) x.hora=inp.value; });
+  sh.querySelectorAll('[data-ef]').forEach(inp=>{ const x=etapasOf(edit.dados)[+inp.dataset.ef]; if(x){ if(inp.value) x.fim=inp.value; else delete x.fim; } });
   sh.querySelectorAll('[data-et]').forEach(inp=>{ const x=etapasOf(edit.dados)[+inp.dataset.et]; if(x) x.titulo=inp.value.trimEnd(); });
   sh.querySelectorAll('[data-lt]').forEach(inp=>{ const i=+inp.dataset.lt; if(edit.dados.itens[i]) edit.dados.itens[i].t=inp.value; });
   sh.querySelectorAll('[data-li]').forEach(inp=>{ const i=+inp.dataset.li; if(edit.dados.itens[i]) edit.dados.itens[i].ok=inp.checked; });
@@ -931,7 +934,8 @@ function trashItem(id){
 }
 function togglePin(id){ const it=S.items.get(id); if(!it) return; const n=clone(it); n.fixo=!n.fixo; addHist(n, n.fixo?'Fixado no topo':'Desafixado'); put(n); buzz(); toast(n.fixo?'Fixado no topo.':'Desafixado.'); }
 function runRecurrence(){
-  sorted().forEach(it=>{ if(it.tipo!=='agenda' || !it.dados.repetir) return; const dt=parseIso(fimAgenda(it.dados)); if(!dt || dt>=today()) return; if(S.migrating.has('rep:'+it.id)) return; const nx=makeNext(it); if(!nx) return; S.migrating.add('rep:'+it.id); const n=clone(it); n.proxId=nx.id; put(nx, true); put(n, true); });
+  sorted().forEach(it=>{ if(it.tipo!=='agenda' || !it.dados.repetir) return; const dt=parseIso(fimAgenda(it.dados)); if(!dt || dt>=today()) return;
+    if(it.dados.rotina){ const d=it.dados; const dia=d.diaRep||(parseIso(d.data)||new Date()).getDate(); let nx=d.data, g=0; while(nx && parseIso(nx)<today() && g++<500) nx=nextDate(nx, d.repetir, dia); if(!nx) return; const delta=daysBetween(d.data, nx); const n=clone(it); n.dados.data=nx; if(etapasOf(n.dados).length) n.dados.etapas=n.dados.etapas.map(x=>Object.assign({}, x, {data:addDays(x.data, delta), feito:false})); put(n, true); return; } if(S.migrating.has('rep:'+it.id)) return; const nx=makeNext(it); if(!nx) return; S.migrating.add('rep:'+it.id); const n=clone(it); n.proxId=nx.id; put(nx, true); put(n, true); });
 }
 function purgeTrash(){ const lim=Date.now()-30*864e5; trashed().forEach(i=>{ if(i.excluido<lim) remove(i.id); }); }
 function saveEditor(){
@@ -1414,8 +1418,8 @@ function calEventos(ini, fim){ // ini/fim: Date (inclusive); devolve Map iso -> 
   const M=new Map(); const add=(iso, ev)=>{ const q=parseIso(iso); if(!q || q<ini || q>fim) return; if(!M.has(iso)) M.set(iso, []); M.get(iso).push(ev); };
   sorted().forEach(i=>{ const d=i.dados||{};
     if(i.tipo==='agenda'){ const ps=agendaPontos(i); const crono=etapasOf(d).length>0;
-      ps.forEach((p,k)=>add(p.ds, {k:'agenda', i, hr:p.hr, titulo:p.titulo, etapa:crono?(k+1)+' de '+ps.length:'', feito:!!p.feito}));
-      if(d.repetir && d.data){ const dia=d.diaRep||(parseIso(d.data)||new Date()).getDate(); let nx=d.data, g=0; const base=d.data; while(g++<60){ nx=nextDate(nx, d.repetir, dia); const q=parseIso(nx); if(!q || q>fim) break; const delta=daysBetween(base, nx); if(crono) ps.forEach(p=>add(addDays(p.ds, delta), {k:'prev', i, hr:p.hr, titulo:p.titulo})); else add(nx, {k:'prev', i, hr:d.hora||'', titulo:d.titulo||'Compromisso'}); } }
+      ps.forEach((p,k)=>add(p.ds, {k:'agenda', i, hr:p.hr, fim:p.fim||'', titulo:p.titulo, etapa:crono?(k+1)+' de '+ps.length:'', feito:!!p.feito}));
+      if(d.repetir && d.data){ const dia=d.diaRep||(parseIso(d.data)||new Date()).getDate(); let nx=d.data, g=0; const base=d.data; while(g++<60){ nx=nextDate(nx, d.repetir, dia); const q=parseIso(nx); if(!q || q>fim) break; const delta=daysBetween(base, nx); if(crono) ps.forEach(p=>add(addDays(p.ds, delta), {k:'prev', i, hr:p.hr, fim:p.fim||'', titulo:p.titulo})); else add(nx, {k:'prev', i, hr:d.hora||'', titulo:d.titulo||'Compromisso'}); } }
     }
     else if(i.tipo==='despesa'){ const pago=d.situacao==='pago'; const ds=pago?(d.pagoEm||d.vencimento):d.vencimento;
       if(ds) add(ds, {k:pago?'pago':'apagar', i, titulo:(d.descricao||'Despesa'), valor:d.valor});
@@ -1432,7 +1436,7 @@ function relogioSegs(evs){
   evs.filter(e=>(e.k==='agenda'||e.k==='prev') && e.hr && !e.feito).forEach(e=>{ const key=e.i.id+'|'+e.k; if(!by.has(key)) by.set(key, []); by.get(key).push(e); });
   const segs=[];
   by.forEach(list=>{ list.sort((a,b)=>hm(a.hr)-hm(b.hr)); const crono=list.length>1 || !!list[0].etapa;
-    list.forEach((e,k)=>{ const s=hm(e.hr); let f=k<list.length-1 ? hm(list[k+1].hr) : s+60; if(f<=s) f=s+30; segs.push({s, f, e, k, crono}); }); });
+    list.forEach((e,k)=>{ const s=hm(e.hr); let f=e.fim ? hm(e.fim) : (k<list.length-1 ? hm(list[k+1].hr) : s+60); if(f<=s) f=s+30; segs.push({s, f, e, k, crono}); }); });
   segs.sort((a,b)=>a.s-b.s || b.f-a.f);
   const lanes=[]; segs.forEach(g=>{ let l=lanes.findIndex(end=>end<=g.s); if(l<0){ l=lanes.length; lanes.push(0); } lanes[l]=g.f; g.lane=Math.min(l,2); });
   return segs;

@@ -668,3 +668,7 @@ body{background-image:var(--grid);background-attachment:fixed}
 .sfiltro[aria-pressed="true"] .badge{display:none}
 /* detalhes */
 .callist .card::before{display:none !important}
+.etrow{grid-template-columns:minmax(0,1.25fr) minmax(0,.9fr) minmax(0,.9fr) auto;grid-template-areas:"d h e x" "t t t b"}
+.etrow [data-ef]{grid-area:e}
+.etrow:not(:has(.etbell)) [data-et]{grid-column:1 / -1}
+@media (min-width:700px){ .etrow{grid-template-columns:140px 96px 96px minmax(0,1fr) auto auto;grid-template-areas:"d h e t b x"} .etrow:not(:has(.etbell)) [data-et]{grid-column:auto} }
