@@ -1,10 +1,10 @@
 {
   "appId": "br.minhasnotas.app",
-  "appName": "Minhas notas",
+  "appName": "Anota",
   "webDir": "dist",
   "android": { "allowMixedContent": false },
   "plugins": {
     "SystemBars": { "insetsHandling": "css", "initialViewportFitValueHint": "cover" },
-    "LocalNotifications": { "smallIcon": "ic_stat_notas", "iconColor": "#1C56AD" }
+    "LocalNotifications": { "smallIcon": "ic_stat_notas", "iconColor": "#1F2A40" }
   }
 }

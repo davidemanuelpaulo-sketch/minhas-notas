@@ -1,4 +1,6 @@
-# Minhas notas — Versão 2
+# Anota — Versão 2
+
+(antes chamado Minhas notas)
 
 App de notas em formato de chat: escreva como numa conversa e cada item vira um card do seu tipo (texto, lista, agenda, despesa, contato, local, imagem, áudio, documento, link), com marcadores, filtros e resumo do mês.
 

@@ -161,7 +161,7 @@ function setupNotifications() {
 export async function saveFile({ filename, data }) {
   if (isNative) {
     const r = await Filesystem.writeFile({ path: filename, data, directory: Directory.Cache, encoding: Encoding.UTF8 });
-    await Share.share({ title: filename, text: /\.csv$/i.test(filename) ? 'Planilha do Minhas notas' : 'Backup do Minhas notas', files: [r.uri], dialogTitle: 'Salvar arquivo' });
+    await Share.share({ title: filename, text: /\.csv$/i.test(filename) ? 'Planilha do Anota' : 'Backup do Anota', files: [r.uri], dialogTitle: 'Salvar arquivo' });
     return;
   }
   const blob = new Blob([data], { type: /\.csv$/i.test(filename) ? 'text/csv;charset=utf-8' : 'application/json' });
